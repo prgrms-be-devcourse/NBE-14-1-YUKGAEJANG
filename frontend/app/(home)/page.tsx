@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CartItem, Product } from '../_shared/apis/productApi.type';
+import { useMemo, useState } from "react";
+import { CartItem, ProductResponse } from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
 import mockProducts from '../_shared/mocks/products.mock';
 import ProductCard from './_components/ProductCard';
@@ -10,16 +10,16 @@ import PageHeader from './_components/PageHeader';
 export default function Page() {
   const [cart, setCart] = useState<CartItem[]>([
     {
-      ...mockProducts[0],
+      product: mockProducts[0],
       quantity: 2,
     },
     {
-      ...mockProducts[1],
-      quantity: 2,
+      product: mockProducts[1],
+      quantity: 1,
     },
     {
-      ...mockProducts[2],
-      quantity: 2,
+      product: mockProducts[2],
+      quantity: 3,
     },
   ]);
 
@@ -28,23 +28,32 @@ export default function Page() {
   const [zipCode, setZipCode] = useState("");
 
   const total = useMemo(
-    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
     [cart]
   );
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: ProductResponse) => {
     setCart((current) => {
-      const exists = current.find((item) => item.id === product.id);
+      const exists = current.find((item) => item.product.id === product.id);
 
       if (exists) {
         return current.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.product.id === product.id
+            ? {
+              product: item.product,
+              quantity: item.quantity + 1,
+            }
             : item
         );
       }
 
-      return [...current, { ...product, quantity: 1 }];
+      return [
+        ...current,
+        {
+          product,
+          quantity: 1,
+        },
+      ];
     });
   };
 
@@ -52,8 +61,11 @@ export default function Page() {
     setCart((current) =>
       current
         .map((item) =>
-          item.id === id
-            ? { ...item, quantity: item.quantity + amount }
+          item.product.id === id
+            ? { 
+              ...item, 
+              quantity: item.quantity + amount,
+            }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -116,17 +128,17 @@ export default function Page() {
                 ) : (
                   cart.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.product.id}
                       className="flex items-center justify-between gap-3"
                     >
                       <span className="min-w-0 truncate text-[16px] font-medium">
-                        {item.name}
+                        {item.product.name}
                       </span>
 
                       <div className="flex shrink-0 items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() => updateQuantity(item.product.id, -1)}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e9e0d4] text-[#735c43] transition hover:bg-[#ded1c0]"
                           aria-label="수량 감소"
                         >
@@ -139,7 +151,7 @@ export default function Page() {
 
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() => updateQuantity(item.product.id, 1)}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e9e0d4] text-[#735c43] transition hover:bg-[#ded1c0]"
                           aria-label="수량 증가"
                         >

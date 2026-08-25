@@ -1,4 +1,4 @@
-import { Product } from '@/app/_shared/apis/productApi.type';
+import { ProductResponse } from '@/app/_shared/apis/productApi.type';
 import formatPrice from '@/app/_shared/utils/numberUtils/formatPrice';
 import CoffeeImageRenderer from './CoffeeImageRenderer';
 
@@ -6,8 +6,8 @@ function ProductCard({
   product,
   onAdd,
 }: {
-  product: Product;
-  onAdd: (product: Product) => void;
+  product: ProductResponse;
+  onAdd: (product: ProductResponse) => void;
 }) {
   return (
     <div className="group rounded-[22px] bg-white p-3.5 shadow-[0_8px_25px_rgba(87,57,31,.06)]">
