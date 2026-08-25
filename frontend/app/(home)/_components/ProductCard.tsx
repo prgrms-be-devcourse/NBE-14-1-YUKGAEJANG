@@ -1,6 +1,6 @@
 import { Product } from '@/app/_shared/apis/productApi.type';
-import CoffeeVisual from './CoffeeVisual';
 import formatPrice from '@/app/_shared/utils/numberUtils/formatPrice';
+import CoffeeImageRenderer from './CoffeeImageRenderer';
 
 function ProductCard({
   product,
@@ -12,7 +12,7 @@ function ProductCard({
   return (
     <div className="group rounded-[22px] bg-white p-3.5 shadow-[0_8px_25px_rgba(87,57,31,.06)]">
       <div className="aspect-[1.05/1]">
-        <CoffeeVisual product={product} />
+        <CoffeeImageRenderer />
       </div>
 
       <div className="px-2 pt-5">
