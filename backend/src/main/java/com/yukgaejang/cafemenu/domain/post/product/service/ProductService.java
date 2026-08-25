@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,8 +55,17 @@ public class ProductService {
 
     //상품 목록 조회
     @Transactional(readOnly = true)
-    public Page<Product> getProducts(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
+    public Page<Product> getProducts(int page, String direction) {
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "id"); //기본 조회
+
+        if ("asc".equalsIgnoreCase(direction)) {
+            sort = Sort.by(Sort.Direction.ASC, "price"); // 가격 낮은 순
+        } else if ("desc".equalsIgnoreCase(direction)) {
+            sort = Sort.by(Sort.Direction.DESC, "price"); // 가격 높은 순
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, sort);
 
         return productRepository.findAll(pageable);
     }
@@ -70,3 +80,7 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 }
+
+
+
+

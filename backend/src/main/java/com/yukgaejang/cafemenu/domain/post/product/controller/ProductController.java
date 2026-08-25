@@ -32,7 +32,6 @@ public class ProductController {
     }
 
 
-
     //상품 수정(update)
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
@@ -48,10 +47,12 @@ public class ProductController {
     //상품 목록 조회
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getProducts(
-            @RequestParam(value = "page", defaultValue = "0")int page) {
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "direction", required = false) String direction
+    ) {
 
-        Page<Product> paging = productService.getProducts(page);
-        
+        Page<Product> paging = productService.getProducts(page, direction);
+
         List<ProductResponse> responses = paging.getContent()
                 .stream()
                 .map(ProductResponse::from)
@@ -59,6 +60,7 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
+
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProduct(
