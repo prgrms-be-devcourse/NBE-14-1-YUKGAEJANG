@@ -130,45 +130,48 @@ function OrderCard({
 
   return (
     <article className="rounded-[14px] bg-white/80 px-6 py-5 shadow-[0_4px_18px_rgba(80,55,30,.055)]">
-      <div className="grid items-center gap-5 xl:grid-cols-[160px_minmax(330px,1fr)_minmax(390px,1fr)_130px]">
+      <div className="grid items-center gap-5 xl:grid-cols-[minmax(330px,1fr)_minmax(390px,1fr)_130px]">
 
-        {/* 주문 정보 */}
-        <div className="self-start">
-          <div className="flex items-center gap-3 text-[15px]">
-            <span className="text-[#65574b]">주문번호</span>
+        {/* 왼쪽: 주문 정보 + 상품 */}
+        <div>
+          {/* 주문 정보 */}
+          <div>
+            <div className="flex items-center gap-3 text-[15px]">
+              <span className="text-[#65574b]">주문번호</span>
 
-            <strong className="font-semibold text-[#3b3027]">
-              #{order.id}
-            </strong>
+              <strong className="font-semibold text-[#3b3027]">
+                #{order.id}
+              </strong>
+            </div>
+
+            <div className="mt-2 text-[15px] text-[#665a50]">
+              {formattedDate}
+              <span className="ml-3">{formattedTime}</span>
+            </div>
           </div>
 
-          <div className="mt-2 text-[15px] text-[#665a50]">
-            {formattedDate}
-            <span className="ml-3">{formattedTime}</span>
-          </div>
-        </div>
+          {/* 상품 */}
+          <div className="mt-5 flex min-w-0 items-center gap-8">
+            <div className="h-[108px] w-[138px] shrink-0">
+              <CoffeeThumbnail />
+            </div>
 
-        {/* 상품 */}
-        <div className="flex min-w-0 items-center gap-8">
-          <div className="h-[108px] w-[138px] shrink-0">
-            <CoffeeThumbnail />
-          </div>
+            <div className="min-w-0 space-y-3">
+              {order.items.map((item) => (
+                <div
+                  key={item.productId}
+                  className="flex items-center gap-4"
+                >
+                  <span className="whitespace-nowrap text-[16px] text-[#45382d]">
+                    {item.productName}
+                  </span>
 
-          <div className="min-w-0 space-y-3">
-            {order.items.map((item) => (
-              <div
-                key={item.productId}
-                className="flex items-center gap-4"
-              >
-                <span className="whitespace-nowrap text-[16px] text-[#45382d]">
-                  {item.productName}
-                </span>
-
-                <span className="rounded-[7px] bg-[#f1ebe3] px-3 py-1 text-[13px] font-medium text-[#756454]">
-                  {item.quantity}개
-                </span>
-              </div>
-            ))}
+                  <span className="rounded-[7px] bg-[#f1ebe3] px-3 py-1 text-[13px] font-medium text-[#756454]">
+                    {item.quantity}개
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
