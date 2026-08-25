@@ -8,11 +8,12 @@ import com.yukgaejang.cafemenu.domain.post.order.repository.OrderRepository;
 import com.yukgaejang.cafemenu.domain.post.product.entity.Product;
 import com.yukgaejang.cafemenu.domain.post.product.repository.ProductRepository;
 import com.yukgaejang.cafemenu.global.exceptionHandler.ApiException;
+import com.yukgaejang.cafemenu.global.exceptionHandler.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,7 @@ public class OrderService {
         for (var itemReq : request.items()) {
             Product product = productRepository.findById(itemReq.productId())
                     .orElseThrow(() -> new ApiException(
-                            HttpStatus.NOT_FOUND,
-                            "PRODUCT_NOT_FOUND",
+                            ErrorCode.PRODUCT_NOT_FOUND,
                             "존재하지 않는 상품입니다: " + itemReq.productId()));
             order.addItem(OrderItem.builder()
                     .product(product)
@@ -64,11 +64,7 @@ public class OrderService {
         boolean isExistedOrder = this.orderRepository.existsById(orderId);
 
         if (!isExistedOrder) {
-            throw new ApiException(
-                    HttpStatus.NOT_FOUND,
-                    "ORDER_NOT_FOUND",
-                    "order not found"
-            );
+            throw new ApiException(ErrorCode.ORDER_NOT_FOUND, "order not found");
         }
 
         this.orderRepository.deleteById(orderId);
