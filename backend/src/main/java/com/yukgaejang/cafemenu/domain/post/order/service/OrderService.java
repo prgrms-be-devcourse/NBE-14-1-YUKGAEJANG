@@ -64,8 +64,7 @@ public class OrderService {
         boolean isExistedOrder = this.orderRepository.existsById(orderId);
 
         if (!isExistedOrder) {
-            throw new ApiException(ErrorCode.ORDER_NOT_FOUND, "order not found");
-        }
+            throw new ApiException(ErrorCode.ORDER_NOT_FOUND, "존재하지 않는 주문입니다: " + orderId);        }
 
         this.orderRepository.deleteById(orderId);
 

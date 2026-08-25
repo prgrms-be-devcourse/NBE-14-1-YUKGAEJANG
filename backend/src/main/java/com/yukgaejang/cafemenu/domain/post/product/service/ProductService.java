@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,7 @@ public class ProductService {
     //상품 수정(update)
     public ProductResponse updateProduct(Long id, ProductCreateRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND, "상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.update(
                 request.name(),
@@ -65,17 +64,9 @@ public class ProductService {
         boolean isExistedProduct = productRepository.existsById(productId);
 
         if (!isExistedProduct) {
-            throw new ApiException(
-                    HttpStatus.NOT_FOUND,
-                    "PRODUCT_NOT_FOUND",
-                    "product not found"
-            );
+            throw new ApiException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
         productRepository.deleteById(productId);
     }
 }
-
-
-
-
