@@ -78,4 +78,10 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page, 10);
         return this.orderRepository.findAll(pageable);
     }
+
+    @Transactional(readOnly = true)
+    public Page<Order> getListByEmail(String email, int page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        return this.orderRepository.findAllByEmail(email, pageable);
+    }
 }
