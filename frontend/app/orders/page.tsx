@@ -1,66 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type OrderItem = {
-  name: string;
+  productId: number;
+  productName: string;
   quantity: number;
 };
 
-type Order = {
-  id: string;
-  date: string;
-  time: string;
-  items: OrderItem[];
+type OrderResponse = {
+  id: number;
   email: string;
-  address: string;
   zipCode: string;
-  total: number;
-  cancelled: boolean;
+  address: string;
+  orderDate: string;
+  orderItems: OrderItem[];
 };
-
-const initialOrders: Order[] = [
-  {
-    id: "#2024-05-18-001",
-    date: "2024.05.18",
-    time: "13:42",
-    items: [
-      { name: "Columbia Nariño", quantity: 2 },
-      { name: "Brazil Serra Do Caparaó", quantity: 2 },
-      { name: "Columbia Nariño", quantity: 2 },
-    ],
-    email: "test@email.com",
-    address: "서울특별시 강남구 테헤란로 123",
-    zipCode: "06142",
-    total: 15000,
-    cancelled: false,
-  },
-  {
-    id: "#2024-05-17-002",
-    date: "2024.05.17",
-    time: "10:15",
-    items: [
-      { name: "Columbia Nariño", quantity: 1 },
-      { name: "Brazil Serra Do Caparaó", quantity: 1 },
-    ],
-    email: "hello@example.com",
-    address: "서울특별시 마포구 양화로 45",
-    zipCode: "04031",
-    total: 10000,
-    cancelled: false,
-  },
-  {
-    id: "#2024-05-16-003",
-    date: "2024.05.16",
-    time: "17:09",
-    items: [{ name: "Columbia Nariño", quantity: 2 }],
-    email: "coffee@naver.com",
-    address: "경기도 성남시 분당구 판교로 255",
-    zipCode: "13487",
-    total: 10000,
-    cancelled: false,
-  },
-];
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("ko-KR").format(price) + "원";
@@ -155,44 +110,58 @@ function UserIcon() {
 
 function OrderCard({
   order,
-  onCancel,
+  onDelete,
 }: {
   order: Order;
-  onCancel: (id: string) => void;
+  onDelete: (id: number) => void;
 }) {
+  const date = new Date(order.orderDate);
+
+  const formattedDate = date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const formattedTime = date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
     <article className="rounded-[14px] bg-white/80 px-6 py-5 shadow-[0_4px_18px_rgba(80,55,30,.055)]">
       <div className="grid items-center gap-5 xl:grid-cols-[160px_minmax(330px,1fr)_minmax(390px,1fr)_130px]">
-        {/* Order information */}
+
+        {/* 주문 정보 */}
         <div className="self-start">
           <div className="flex items-center gap-3 text-[15px]">
             <span className="text-[#65574b]">주문번호</span>
 
             <strong className="font-semibold text-[#3b3027]">
-              {order.id}
+              #{order.id}
             </strong>
           </div>
 
           <div className="mt-2 text-[15px] text-[#665a50]">
-            {order.date}
-            <span className="ml-3">{order.time}</span>
+            {formattedDate}
+            <span className="ml-3">{formattedTime}</span>
           </div>
         </div>
 
-        {/* Products */}
+        {/* 상품 */}
         <div className="flex min-w-0 items-center gap-8">
           <div className="h-[108px] w-[138px] shrink-0">
             <CoffeeThumbnail />
           </div>
 
           <div className="min-w-0 space-y-3">
-            {order.items.map((item, index) => (
+            {order.items.map((item) => (
               <div
-                key={`${item.name}-${index}`}
+                key={item.productId}
                 className="flex items-center gap-4"
               >
                 <span className="whitespace-nowrap text-[16px] text-[#45382d]">
-                  {item.name}
+                  {item.productName}
                 </span>
 
                 <span className="rounded-[7px] bg-[#f1ebe3] px-3 py-1 text-[13px] font-medium text-[#756454]">
@@ -203,79 +172,75 @@ function OrderCard({
           </div>
         </div>
 
-        {/* Shipping information */}
+        {/* 배송 정보 */}
         <div className="border-l border-[#eee7df] pl-8">
           <div className="grid grid-cols-[72px_1fr] gap-y-5 text-[14px]">
             <span className="text-[#81756a]">이메일</span>
-            <span className="truncate text-[#5d5147]">{order.email}</span>
+            <span className="truncate text-[#5d5147]">
+              {order.email}
+            </span>
 
             <span className="text-[#81756a]">배송지</span>
-            <span className="truncate text-[#5d5147]">{order.address}</span>
+            <span className="truncate text-[#5d5147]">
+              {order.address}
+            </span>
 
             <span className="text-[#81756a]">우편번호</span>
-            <span className="text-[#5d5147]">{order.zipCode}</span>
+            <span className="text-[#5d5147]">
+              {order.zipCode}
+            </span>
           </div>
         </div>
 
-        {/* Price / Cancel */}
-        <div className="flex flex-col items-end gap-5">
-          <strong className="text-[24px] font-bold tracking-[-0.04em] text-[#3d3025]">
-            {formatPrice(order.total)}
-          </strong>
-
-          {order.cancelled ? (
-            <span className="rounded-[8px] border border-[#ddd2c6] px-5 py-2 text-[14px] text-[#a29487]">
-              주문 취소됨
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onCancel(order.id)}
-              className="rounded-[8px] border border-[#d9877c] px-5 py-2 text-[14px] font-medium text-[#bd5c50] transition hover:bg-[#fff4f2] active:scale-[0.98]"
-            >
-              주문 취소
-            </button>
-          )}
+        {/* 주문 삭제 */}
+        <div className="flex flex-col items-end">
+          <button
+            type="button"
+            onClick={() => onDelete(order.id)}
+            className="rounded-[8px] border border-[#d9877c] px-5 py-2 text-[14px] font-medium text-[#bd5c50] transition hover:bg-[#fff4f2] active:scale-[0.98]"
+          >
+            주문 삭제
+          </button>
         </div>
+
       </div>
     </article>
   );
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [activeTab, setActiveTab] = useState<"all" | "cancelled">("all");
+  const [orders, setOrders] = useState<Order[]>([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const filteredOrders = useMemo(() => {
-    if (activeTab === "cancelled") {
-      return orders.filter((order) => order.cancelled);
-    }
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-    return orders;
-  }, [activeTab, orders]);
+        const response = await fetch(
+          `http://localhost:8080/api/v1/orders?page=${page - 1}`
+        );
 
-  const handleCancel = (id: string) => {
-    const target = orders.find((order) => order.id === id);
+        if (!response.ok) {
+          throw new Error("주문 내역 조회 실패");
+        }
 
-    if (!target || target.cancelled) return;
+        const data: Order[] = await response.json();
 
-    const confirmed = window.confirm(
-      `${target.id} 주문을 취소하시겠습니까?`
-    );
+        setOrders(data);
+      } catch (error) {
+        console.error(error);
+        setError("주문 내역을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!confirmed) return;
-
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === id ? { ...order, cancelled: true } : order
-      )
-    );
-  };
-
-  const changePage = (nextPage: number) => {
-    setPage(nextPage);
-  };
+    fetchOrders();
+  }, [page]);
 
   return (
     <main className="min-h-screen bg-[#f8f4ee] text-[#3b3027]">
@@ -289,6 +254,7 @@ export default function OrdersPage() {
 
       {/* Content */}
       <div className="mx-auto max-w-[1380px] px-7 pb-8 pt-7">
+
         {/* Title */}
         <div className="mb-7">
           <h1 className="text-[31px] font-bold tracking-[-0.055em] text-[#3b2e24]">
@@ -300,52 +266,26 @@ export default function OrdersPage() {
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-4 flex h-[70px] items-center rounded-[13px] border border-[#eee7df] bg-white/80 px-4 shadow-[0_3px_15px_rgba(80,55,30,.04)]">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab("all");
-              setPage(1);
-            }}
-            className={`flex h-[42px] min-w-[88px] items-center justify-center rounded-[11px] text-[15px] font-medium transition ${
-              activeTab === "all"
-                ? "bg-[#f5efe7] text-[#4b3d31]"
-                : "text-[#6d6259] hover:bg-[#faf7f3]"
-            }`}
-          >
-            전체
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab("cancelled");
-              setPage(1);
-            }}
-            className={`flex h-[42px] min-w-[100px] items-center justify-center rounded-[11px] text-[15px] font-medium transition ${
-              activeTab === "cancelled"
-                ? "bg-[#f5efe7] text-[#4b3d31]"
-                : "text-[#6d6259] hover:bg-[#faf7f3]"
-            }`}
-          >
-            취소된 주문
-          </button>
-        </div>
-
         {/* Orders */}
         <div className="space-y-3">
-          {filteredOrders.length > 0 ? (
-            filteredOrders.map((order) => (
+          {loading ? (
+            <div className="flex min-h-[300px] items-center justify-center rounded-[14px] bg-white/80 text-[15px] text-[#9a8f84]">
+              주문 내역을 불러오는 중입니다...
+            </div>
+          ) : error ? (
+            <div className="flex min-h-[300px] items-center justify-center rounded-[14px] bg-white/80 text-[15px] text-[#9a8f84]">
+              {error}
+            </div>
+          ) : orders.length > 0 ? (
+            orders.map((order) => (
               <OrderCard
                 key={order.id}
                 order={order}
-                onCancel={handleCancel}
               />
             ))
           ) : (
             <div className="flex min-h-[300px] items-center justify-center rounded-[14px] bg-white/80 text-[15px] text-[#9a8f84]">
-              취소된 주문 내역이 없습니다.
+              주문 내역이 없습니다.
             </div>
           )}
         </div>
@@ -355,7 +295,7 @@ export default function OrdersPage() {
           <button
             type="button"
             disabled={page === 1}
-            onClick={() => changePage(Math.max(1, page - 1))}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             className="flex h-9 w-9 items-center justify-center text-[25px] text-[#74675b] disabled:cursor-default disabled:opacity-40"
             aria-label="이전 페이지"
           >
@@ -366,7 +306,7 @@ export default function OrdersPage() {
             <button
               type="button"
               key={number}
-              onClick={() => changePage(number)}
+              onClick={() => setPage(number)}
               className={`flex h-9 w-9 items-center justify-center rounded-[7px] text-[14px] transition ${
                 page === number
                   ? "bg-[#eadfce] font-semibold text-[#57483a]"
@@ -379,14 +319,14 @@ export default function OrdersPage() {
 
           <button
             type="button"
-            disabled={page === 3}
-            onClick={() => changePage(Math.min(3, page + 1))}
-            className="flex h-9 w-9 items-center justify-center text-[25px] text-[#74675b] disabled:cursor-default disabled:opacity-40"
+            onClick={() => setPage((prev) => prev + 1)}
+            className="flex h-9 w-9 items-center justify-center text-[25px] text-[#74675b]"
             aria-label="다음 페이지"
           >
             ›
           </button>
         </nav>
+
       </div>
     </main>
   );
