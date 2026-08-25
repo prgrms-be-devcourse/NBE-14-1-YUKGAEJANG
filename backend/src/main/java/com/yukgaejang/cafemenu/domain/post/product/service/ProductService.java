@@ -5,6 +5,7 @@ import com.yukgaejang.cafemenu.domain.post.product.dto.ProductResponse;
 import com.yukgaejang.cafemenu.domain.post.product.entity.Product;
 import com.yukgaejang.cafemenu.domain.post.product.repository.ProductRepository;
 import com.yukgaejang.cafemenu.global.exceptionHandler.ApiException;
+import com.yukgaejang.cafemenu.global.exceptionHandler.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,11 +39,7 @@ public class ProductService {
     //상품 수정(update)
     public ProductResponse updateProduct(Long id, ProductCreateRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ApiException(
-                        HttpStatus.NOT_FOUND,
-                        "PRODUCT_NOT_FOUND",
-                        "상품이 존재하지 않습니다."
-                ));
+                .orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND, "상품이 존재하지 않습니다."));
 
         product.update(
                 request.name(),
