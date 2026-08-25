@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum ErrorCode {
+public enum ErrorCodeV2 {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
@@ -13,7 +13,7 @@ public enum ErrorCode {
     private final HttpStatus status;
     private final String defaultMessage;
 
-    ErrorCode(HttpStatus status, String defaultMessage) {
+    ErrorCodeV2(HttpStatus status, String defaultMessage) {
         this.status = status;
         this.defaultMessage = defaultMessage;
     }
