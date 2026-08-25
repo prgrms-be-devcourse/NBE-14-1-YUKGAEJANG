@@ -47,4 +47,6 @@ export type OrderItemResponse = {
   productId: number;
   productName: string;
   quantity: number;
+
+  // FIXME: backend 에서 price 내려주기
 };
