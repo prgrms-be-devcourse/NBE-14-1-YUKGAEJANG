@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CartItem, ProductResponse } from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
 import mockProducts from '../_shared/mocks/products.mock';
@@ -8,6 +8,21 @@ import ProductCard from './_components/ProductCard';
 import PageHeader from './_components/PageHeader';
 
 export default function Page() {
+  useEffect(() => {
+    async function fetchProducts() {
+      const response = await fetch("http://localhost:8080/api/v1/products", {
+        method: "GET",
+      });
+
+      const responseData = await response.json();
+      console.group("Product 목록 조회 API 요청 테스트");
+      console.log('responseData: ', responseData);
+      console.groupEnd();
+    }
+
+    fetchProducts();
+  }, []);
+  
   const [cart, setCart] = useState<CartItem[]>([
     {
       product: mockProducts[0],
