@@ -52,7 +52,7 @@ public class OrderController {
     }
 
     @GetMapping(params = "email")
-    public ResponseEntity<List<OrderResponse>> listByEmail(@RequestParam @Valid String email, @RequestParam(value = "page", defaultValue = "0") int page) {
+    public ResponseEntity<OrderListResponse> listByEmail(@RequestParam @Valid String email, @RequestParam(value = "page", defaultValue = "0") int page) {
         Page<Order> paging = orderService.getListByEmail(email, page);
 
         List<OrderResponse> responses = paging.getContent()
@@ -60,7 +60,11 @@ public class OrderController {
                 .map(OrderResponse::from)
                 .toList();
 
-        return ResponseEntity.ok(responses);
-    }
+        OrderListResponse response = new OrderListResponse(
+                paging.getTotalPages(),
+                responses
+        );
 
+        return ResponseEntity.ok(response);
+    }
 }
