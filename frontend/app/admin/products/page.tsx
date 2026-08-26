@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { ProductResponse } from '@/app/_shared/apis/productApi.type';
+import { ProductListResponse, ProductResponse } from '@/app/_shared/apis/productApi.type';
 
 import {
   ChevronDownIcon,
@@ -25,7 +25,7 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [productsData, setProductsData] = useState<ProductListResponse | null>(null);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -33,15 +33,15 @@ export default function ProductsPage() {
         method: 'GET',
       });
 
-      const responseData: ProductResponse[] = await response.json();
-
-      setProducts(responseData);
+      const responseData: ProductListResponse = await response.json();
+      setProductsData(responseData);
     }
 
     fetchProducts();
   }, []);
 
   const filteredProducts = useMemo(() => {
+    const products = productsData?.products ?? [];
     const keyword = search.trim().toLowerCase();
 
     if (!keyword) {
@@ -54,14 +54,14 @@ export default function ProductsPage() {
         String(product.id).includes(keyword)
       );
     });
-  }, [search, products]);
+  }, [search, productsData]);
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / PAGE_SIZE),
+    Math.ceil(filteredProducts?.length ?? 0 / PAGE_SIZE),
   );
 
-  const currentProducts = filteredProducts.slice(
+  const currentProducts = filteredProducts?.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
@@ -131,7 +131,16 @@ export default function ProductsPage() {
 
     alert('상품이 삭제되었습니다.');
 
-    setProducts((current) => current.filter((product) => product.id !== id));
+    setProductsData((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        products: current.products.filter((product) => product.id !== id),
+      };
+    });
   };
 
   return (
