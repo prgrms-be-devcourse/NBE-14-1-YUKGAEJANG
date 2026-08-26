@@ -29,7 +29,7 @@ export type OrderItemRequest = {
 //
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 /**
- * 주문 생성/목록 API Response 타입
+ * 주문 생성 Response 타입
  */
 export type OrderResponse = {
   id: number;
@@ -50,3 +50,11 @@ export type OrderItemResponse = {
 
   // FIXME: backend 에서 price 내려주기
 };
+
+/**
+ * 목록 API Response 타입
+ */
+export interface OrderListResponse {
+  totalPages: number;
+  orders: OrderListResponse[];
+}
