@@ -13,5 +13,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByEmailAndOrderDateBetween(
             String email, LocalDateTime windowStart, LocalDateTime windowEnd);
 
-    Page<Order> findAll(Pageable pageable);
+    Page<Order> findAllByEmail(String email, Pageable pageable);
+
+    Boolean existsByEmail(String email);
 }

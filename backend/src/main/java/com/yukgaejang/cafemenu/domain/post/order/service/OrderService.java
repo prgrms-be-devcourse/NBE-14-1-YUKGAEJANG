@@ -80,4 +80,16 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page, 10);
         return this.orderRepository.findAll(pageable);
     }
+
+    @Transactional(readOnly = true)
+    public Page<Order> getListByEmail(String email, int page) {
+        boolean isExistedEmail = this.orderRepository.existsByEmail(email);
+
+        if(!isExistedEmail){
+            throw new ApiException(ErrorCode.EMAIL_NOT_FOUND, "존재하지 않는 이메일입니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page, 5);
+        return this.orderRepository.findAllByEmail(email, pageable);
+    }
 }
