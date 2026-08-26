@@ -56,6 +56,44 @@ export default function OrdersPage() {
     fetchOrders();
   }, [email, page]);
 
+  const handleUpdateOrder = async (
+    id: number,
+    address: string,
+    zipCode: string
+  ) => {
+    const response = await fetch(
+      `http://localhost:8080/api/v1/orders/${id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address,
+          zipCode,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('배송지 수정에 실패했습니다.');
+    }
+
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === id
+          ? {
+              ...order,
+              address,
+              zipCode,
+            }
+          : order
+      )
+    );
+
+    window.alert('주문을 수정하였습니다.');
+  };
+
   const handleCancel = (id: number) => {
     const target = orders.find((order) => order.id === id);
 
@@ -117,6 +155,7 @@ export default function OrdersPage() {
               key={order.id}
               order={order}
               onCancel={handleCancel}
+              onUpdateAddress={handleUpdateOrder}
             />
           ))}
         </div>
