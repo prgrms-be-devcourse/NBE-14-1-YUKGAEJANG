@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CartItem, ProductResponse } from '../_shared/apis/productApi.type';
+import { CartItem, ProductListResponse, ProductResponse } from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
-import mockProducts from '../_shared/mocks/products.mock';
 import ProductCard from './_components/ProductCard';
 import PageHeader from './_components/PageHeader';
 
 export default function Page() {
-  const [products, setProducts] = useState<ProductResponse[]>([]); //상품 목록 저장 공간
+  const [productData, setProductData] = useState<ProductListResponse | null>(null); //상품 목록 저장 공간
   useEffect(() => {
     async function fetchProducts() {
       const response = await fetch('http://localhost:8080/api/v1/products', {
@@ -16,10 +15,7 @@ export default function Page() {
       });
 
       const responseData = await response.json();
-      console.group('Product 목록 조회 API 요청 테스트');
-      console.groupEnd();
-
-      setProducts(responseData);
+      setProductData(responseData);
     }
 
     fetchProducts();
@@ -116,9 +112,6 @@ export default function Page() {
       return;
     }
 
-    const responseData = await response.json();
-
-
     alert(`총 ${formatPrice(total)} 결제를 진행합니다.`);
   };
 
@@ -139,7 +132,7 @@ export default function Page() {
               </h2>
 
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
+                {productData?.products.map((product) => (
                   <ProductCard
                     key={product.id}
                     product={product}

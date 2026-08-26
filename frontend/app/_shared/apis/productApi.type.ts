@@ -28,9 +28,10 @@ export type ProductResponse = {
   // origin: string;
 };
 
-// export type CartItem = ProductResponse & {
-//   quantity: number;
-// };
+export type ProductListResponse = {
+  totalPages: number;
+  products: ProductResponse[];
+};
 
 export type CartItem = {
   product: ProductResponse;
