@@ -9,6 +9,7 @@ import com.yukgaejang.cafemenu.domain.post.product.entity.Product;
 import com.yukgaejang.cafemenu.domain.post.product.repository.ProductRepository;
 import com.yukgaejang.cafemenu.global.exceptionHandler.ApiException;
 import com.yukgaejang.cafemenu.global.exceptionHandler.ErrorCode;
+import com.yukgaejang.cafemenu.global.util.BatchTimeWindowUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,10 +31,11 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderCreateRequest request) {
         LocalDateTime now = LocalDateTime.now();
+        BatchTimeWindowUtil.BatchTimeWindow batchTimeWindow = BatchTimeWindowUtil
+                .getBatchTimeWindow(now);
 
-        // TODO: 김영우님 마감시각 유틸 나오면 아래 두 줄 교체
-        LocalDateTime windowStart = now.toLocalDate().atTime(14, 0).minusDays(1);
-        LocalDateTime windowEnd = now.toLocalDate().atTime(14, 0);
+        LocalDateTime windowStart = batchTimeWindow.windowStart();
+        LocalDateTime windowEnd = batchTimeWindow.windowEnd();
 
         Order order = orderRepository
                 .findByEmailAndOrderDateBetween(request.email(), windowStart, windowEnd)

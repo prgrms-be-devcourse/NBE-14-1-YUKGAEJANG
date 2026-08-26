@@ -1,58 +1,31 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from "react";
 import Logo from './_components/Logo';
 import UserIcon from './_components/UserIcon';
 import OrderCard from './_components/OrderCard';
-import { OrderResponse } from '../_shared/apis/orderApi.type';
-import mockOrders from '../_shared/mocks/orders.mock';
+import { OrderResponse } from '@/app/_shared/apis/orderApi.type';
+import mockOrders from '@/app/_shared/mocks/orders.mock';
 
-export default function OrdersPage() {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<OrderResponse[]>(mockOrders);
   const [page, setPage] = useState(1);
 
-  //주문 목록 연결
-  useEffect(() => {
-    async function fetchOrders() {
-      const response = await fetch('http://localhost:8080/api/v1/orders', {
-        method: 'GET',
-      });
-
-      const responseData: OrderResponse[] = await response.json();
-
-
-
-      setOrders(responseData);
-    }
-
-    fetchOrders();
-  }, []);
-
-  const handleCancel = async (id: number) => {
+  const handleCancel = (id: number) => {
     const target = orders.find((order) => order.id === id);
 
     if (!target) return;
 
-    const confirmed = window.confirm(`${target.id} 주문을 취소하시겠습니까?`);
+    const confirmed = window.confirm(
+      `${target.id} 주문을 취소하시겠습니까?`
+    );
 
     if (!confirmed) return;
 
-    //삭제 요청
-    const response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      alert('주문 취소에 실패했습니다.');
-      return;
-    }
-
-    alert('주문이 취소되었습니다.');
-
     setOrders((current) =>
       current.map((order) =>
-        order.id === id ? { ...order, cancelled: true } : order,
-      ),
+        order.id === id ? { ...order, cancelled: true } : order
+      )
     );
   };
 
@@ -62,20 +35,12 @@ export default function OrdersPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f4ee] text-[#3b3027]">
-      {/* Header */}
-      <header className="h-[94px] border-b border-[#eee7df] bg-[#f8f3ec]/95">
-        <div className="mx-auto flex h-full max-w-[1380px] items-center justify-between px-7">
-          <Logo />
-          <UserIcon />
-        </div>
-      </header>
-
       {/* Content */}
       <div className="mx-auto max-w-[1380px] px-7 pb-8 pt-7">
         {/* Title */}
         <div className="mb-7">
           <h1 className="text-[31px] font-bold tracking-[-0.055em] text-[#3b2e24]">
-            주문 내역
+            주문 내역 (관리자용)
           </h1>
 
           <p className="mt-2 text-[15px] text-[#7b7066]">
@@ -86,7 +51,11 @@ export default function OrdersPage() {
         {/* Orders */}
         <div className="space-y-3">
           {orders.map((order) => (
-            <OrderCard key={order.id} order={order} onCancel={handleCancel} />
+            <OrderCard
+              key={order.id}
+              order={order}
+              onCancel={handleCancel}
+            />
           ))}
         </div>
 
@@ -109,8 +78,8 @@ export default function OrdersPage() {
               onClick={() => changePage(number)}
               className={`flex h-9 w-9 items-center justify-center rounded-[7px] text-[14px] transition ${
                 page === number
-                  ? 'bg-[#eadfce] font-semibold text-[#57483a]'
-                  : 'border border-[#eee7df] bg-white/70 text-[#6d6157] hover:bg-[#f5eee5]'
+                  ? "bg-[#eadfce] font-semibold text-[#57483a]"
+                  : "border border-[#eee7df] bg-white/70 text-[#6d6157] hover:bg-[#f5eee5]"
               }`}
             >
               {number}
