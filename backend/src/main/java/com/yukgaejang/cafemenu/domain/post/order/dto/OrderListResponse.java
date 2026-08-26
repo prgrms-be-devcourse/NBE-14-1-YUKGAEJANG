@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 
 public class OrderListResponse {
-    private int totalPages; // 전체 아이템 수
+    private int totalPages; // 전체 페이지 수
     private List<OrderResponse> orders;
 }
 
