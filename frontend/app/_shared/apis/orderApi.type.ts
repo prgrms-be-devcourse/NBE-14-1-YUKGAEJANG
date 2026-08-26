@@ -54,7 +54,7 @@ export type OrderItemResponse = {
 /**
  * 목록 API Response 타입
  */
-export interface OrderListResponse {
+export type OrderListResponse = {
   totalPages: number;
   orders: OrderListResponse[];
 }

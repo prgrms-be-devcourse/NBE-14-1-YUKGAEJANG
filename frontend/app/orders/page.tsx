@@ -14,44 +14,44 @@ export default function OrderEmailPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     const trimmedEmail = email.trim();
-
+  
     setError("");
-
+  
     // 이메일 미입력
     if (!trimmedEmail) {
       setError("이메일을 입력해주세요.");
       return;
     }
-
+  
     // 이메일 형식 확인
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       setError("올바른 이메일 형식을 입력해주세요.");
       return;
     }
-
+  
     try {
       setLoading(true);
-
+  
       const response = await fetch(
-        `http://localhost:8080/api/v1/orders?email=${encodeURIComponent(
+        `http://localhost:8080/api/v1/orders/email?email=${encodeURIComponent(
           trimmedEmail
         )}`
       );
-
+  
       if (!response.ok) {
-        const errorData = await response.json();
-
-        if (errorData.code === "EMAIL_NOT_FOUND") {
-          setError("존재하지 않는 이메일입니다.");
-        } else {
-          setError("주문 내역을 조회할 수 없습니다.");
-        }
-
+        throw new Error("이메일 확인에 실패했습니다.");
+      }
+  
+      // 백엔드에서 true / false 반환
+      const exists: boolean = await response.json();
+  
+      if (!exists) {
+        setError("존재하지 않는 이메일입니다.");
         return;
       }
-
+  
       // 이메일이 존재하면 주문 내역 페이지로 이동
       router.push(
         `/orders/list?email=${encodeURIComponent(trimmedEmail)}`
