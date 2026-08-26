@@ -56,5 +56,5 @@ export type OrderItemResponse = {
  */
 export type OrderListResponse = {
   totalPages: number;
-  orders: OrderListResponse[];
+  orders: OrderResponse[];
 }
