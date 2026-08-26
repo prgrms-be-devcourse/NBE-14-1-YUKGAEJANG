@@ -67,4 +67,11 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/email")
+    public ResponseEntity<Boolean> existEmail(@RequestParam @Valid String email){
+        boolean check =this.orderService.getEmail(email);
+
+        return ResponseEntity.ok(check);
+    }
 }
