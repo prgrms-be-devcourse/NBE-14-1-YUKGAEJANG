@@ -84,7 +84,7 @@ public class OrderService {
         boolean isExistedEmail = this.orderRepository.existsByEmail(email);
 
         if(!isExistedEmail){
-//            throw new ApiException("EMAIL_NOT_FOUND", "존재하지 않는 이메일입니다.");
+            throw new ApiException(ErrorCode.EMAIL_NOT_FOUND, "존재하지 않는 이메일입니다.");
         }
 
         Pageable pageable = PageRequest.of(page, 5);
