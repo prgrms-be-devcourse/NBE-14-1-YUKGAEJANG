@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @GetMapping(params = "email")
-    public ResponseEntity<List<OrderResponse>> listByEmail(@RequestParam String email, @RequestParam(value = "page", defaultValue = "0") int page) {
+    public ResponseEntity<List<OrderResponse>> listByEmail(@RequestParam @Valid String email, @RequestParam(value = "page", defaultValue = "0") int page) {
         Page<Order> paging = orderService.getListByEmail(email, page);
 
         List<OrderResponse> responses = paging.getContent()
