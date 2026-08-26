@@ -1,3 +1,9 @@
+/**
+ * [관리자 통계 대시보등요 집계 쿼리]
+ * - OrderItem을 기준으로 주문일(Order)와 가격(Product)를 조인하여 일/월별 매출 합계와 상품별 판매 수량 합계를 DB 레벨에서 계산한다.
+ * - 애플리케이션 메모리로 전체 데이터를 끌어와 계산하지 않기 위해 JPQL의 GROUP BY/SUM을 사용한다.
+ * - 반환 타입은 엔티티 대신 인터페이스 기반 projection을 사용해 필요한 컬럼만 조회한다.
+ */
 package com.yukgaejang.cafemenu.domain.post.order.repository;
 
 import com.yukgaejang.cafemenu.domain.post.order.entity.OrderItem;
