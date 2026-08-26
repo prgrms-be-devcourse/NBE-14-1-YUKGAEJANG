@@ -35,14 +35,6 @@ export default function AdminOrdersPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f4ee] text-[#3b3027]">
-      {/* Header */}
-      <header className="h-[94px] border-b border-[#eee7df] bg-[#f8f3ec]/95">
-        <div className="mx-auto flex h-full max-w-[1380px] items-center justify-between px-7">
-          <Logo />
-          <UserIcon />
-        </div>
-      </header>
-
       {/* Content */}
       <div className="mx-auto max-w-[1380px] px-7 pb-8 pt-7">
         {/* Title */}
