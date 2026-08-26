@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { ProductListResponse, ProductResponse } from '@/app/_shared/apis/productApi.type';
+import {
+  ProductListResponse,
+  ProductResponse,
+} from '@/app/_shared/apis/productApi.type';
 
 import {
   ChevronDownIcon,
@@ -25,8 +28,15 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [productsData, setProductsData] = useState<ProductListResponse | null>(null);
-
+  const [productsData, setProductsData] = useState<ProductListResponse | null>(
+    null,
+  );
+  //수정용  state
+  const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(
+    null,
+  );
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState('');
   useEffect(() => {
     async function fetchProducts() {
       const response = await fetch('http://localhost:8080/api/v1/products', {
@@ -143,6 +153,61 @@ export default function ProductsPage() {
     });
   };
 
+  // 관리자가 상품 수정하는 함수
+  const handleEditClick = (product: ProductResponse) => {
+    setEditingProduct(product);
+    setEditName(product.name);
+    setEditPrice(String(product.price));
+  };
+
+  const handleEditSave = async () => {
+    if (!editingProduct) return;
+
+    if (!editName.trim() || !editPrice) {
+      alert('상품명과 가격을 입력해주세요.');
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/v1/products/${editingProduct.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editName.trim(),
+          price: Number(editPrice),
+          imageUrl: editingProduct.imageUrl,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      alert(errorData.message ?? '상품 수정에 실패했습니다.');
+      return;
+    }
+
+    const updatedProduct: ProductResponse = await response.json();
+
+    setProductsData((current) => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        products: current.products.map((product) =>
+          product.id === updatedProduct.id ? updatedProduct : product,
+        ),
+      };
+    });
+
+    setEditingProduct(null);
+
+    alert('상품이 수정되었습니다.');
+  };
+
   return (
     <main className="min-w-0 flex-1 px-6 py-10 lg:px-10">
       <div className="mx-auto max-w-[1168px]">
@@ -174,7 +239,26 @@ export default function ProductsPage() {
             상품 등록
           </button>
         </div>
+        {/* 수정 폼 */}
+        {editingProduct && (
+          <div className="mb-4 flex gap-2">
+            <input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="border px-3 py-2"
+            />
 
+            <input
+              value={editPrice}
+              onChange={(e) => setEditPrice(e.target.value)}
+              className="border px-3 py-2"
+            />
+
+            <button onClick={handleEditSave}>저장</button>
+
+            <button onClick={() => setEditingProduct(null)}>취소</button>
+          </div>
+        )}
         {/* Product Card */}
         <section className="overflow-hidden rounded-2xl border border-[#eee7df] bg-white shadow-[0_7px_25px_rgba(76,54,38,0.035)]">
           {/* Search */}
@@ -229,9 +313,7 @@ export default function ProductsPage() {
                     selected={selectedIds.includes(product.id)}
                     onSelect={() => handleToggleProduct(product.id)}
                     onDelete={() => handleDelete(product.id)}
-                    onEdit={() =>
-                      router.push(`/admin/products/${product.id}/edit`)
-                    }
+                    onEdit={() => handleEditClick(product)}
                   />
                 ))}
 
