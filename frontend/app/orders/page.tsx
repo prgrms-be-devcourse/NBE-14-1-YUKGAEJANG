@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "./_components/Logo";
 import UserIcon from "./_components/UserIcon";
+import Link from 'next/link';
 
 export default function OrderEmailPage() {
   const router = useRouter();
@@ -69,7 +70,9 @@ export default function OrderEmailPage() {
       {/* Header */}
       <header className="h-[94px] border-b border-[#eee7df] bg-[#f8f3ec]/95">
         <div className="mx-auto flex h-full max-w-[1380px] items-center justify-between px-7">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
           <UserIcon />
         </div>
       </header>

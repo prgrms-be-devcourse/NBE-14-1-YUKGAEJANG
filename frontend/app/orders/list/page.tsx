@@ -10,6 +10,7 @@ import {
   OrderResponse,
   OrderListResponse,
 } from "../../_shared/apis/orderApi.type";
+import Link from 'next/link';
 
 export default function OrdersPage() {
   const searchParams = useSearchParams();
@@ -130,7 +131,9 @@ export default function OrdersPage() {
       {/* Header */}
       <header className="h-[94px] border-b border-[#eee7df] bg-[#f8f3ec]/95">
         <div className="mx-auto flex h-full max-w-[1380px] items-center justify-between px-7">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
           <UserIcon />
         </div>
       </header>
