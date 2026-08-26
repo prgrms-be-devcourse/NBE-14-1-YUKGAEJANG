@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from 'react';
 import { CartItem, ProductResponse } from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
 import mockProducts from '../_shared/mocks/products.mock';
@@ -8,43 +8,32 @@ import ProductCard from './_components/ProductCard';
 import PageHeader from './_components/PageHeader';
 
 export default function Page() {
+  const [products, setProducts] = useState<ProductResponse[]>([]); //상품 목록 저장 공간
   useEffect(() => {
     async function fetchProducts() {
-      const response = await fetch("http://localhost:8080/api/v1/products", {
-        method: "GET",
+      const response = await fetch('http://localhost:8080/api/v1/products', {
+        method: 'GET',
       });
 
       const responseData = await response.json();
-      console.group("Product 목록 조회 API 요청 테스트");
-      console.log('responseData: ', responseData);
+      console.group('Product 목록 조회 API 요청 테스트');
       console.groupEnd();
+
+      setProducts(responseData);
     }
 
     fetchProducts();
   }, []);
-  
-  const [cart, setCart] = useState<CartItem[]>([
-    {
-      product: mockProducts[0],
-      quantity: 2,
-    },
-    {
-      product: mockProducts[1],
-      quantity: 1,
-    },
-    {
-      product: mockProducts[2],
-      quantity: 3,
-    },
-  ]);
 
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]); //처음에 선택된 상품 없게
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [zipCode, setZipCode] = useState('');
 
   const total = useMemo(
-    () => cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
-    [cart]
+    () =>
+      cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+    [cart],
   );
 
   const addToCart = (product: ProductResponse) => {
@@ -55,10 +44,10 @@ export default function Page() {
         return current.map((item) =>
           item.product.id === product.id
             ? {
-              product: item.product,
-              quantity: item.quantity + 1,
-            }
-            : item
+                product: item.product,
+                quantity: item.quantity + 1,
+              }
+            : item,
         );
       }
 
@@ -77,26 +66,58 @@ export default function Page() {
       current
         .map((item) =>
           item.product.id === id
-            ? { 
-              ...item, 
-              quantity: item.quantity + amount,
-            }
-            : item
+            ? {
+                ...item,
+                quantity: item.quantity + amount,
+              }
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!email || !address || !zipCode) {
-      alert("이메일, 주소, 우편번호를 모두 입력해주세요.");
+      alert('이메일, 주소, 우편번호를 모두 입력해주세요.');
       return;
     }
 
     if (cart.length === 0) {
-      alert("상품을 선택해주세요.");
+      alert('상품을 선택해주세요.');
       return;
     }
+
+    //주문 api 연결
+    const items = cart.map((item) => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+    }));
+
+    const requestBody = {
+      email,
+      zipCode,
+      address,
+      items,
+    };
+
+    const response = await fetch('http://localhost:8080/api/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      console.error('주문 실패:', errorData);
+      alert(errorData.message ?? '주문에 실패했습니다.');
+      return;
+    }
+
+    const responseData = await response.json();
+
 
     alert(`총 ${formatPrice(total)} 결제를 진행합니다.`);
   };
@@ -118,7 +139,7 @@ export default function Page() {
               </h2>
 
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {mockProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard
                     key={product.id}
                     product={product}

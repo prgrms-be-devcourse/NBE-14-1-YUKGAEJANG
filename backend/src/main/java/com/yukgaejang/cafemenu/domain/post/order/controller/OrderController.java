@@ -1,6 +1,7 @@
 package com.yukgaejang.cafemenu.domain.post.order.controller;
 
 import com.yukgaejang.cafemenu.domain.post.order.dto.OrderCreateRequest;
+import com.yukgaejang.cafemenu.domain.post.order.dto.OrderListResponse;
 import com.yukgaejang.cafemenu.domain.post.order.dto.OrderResponse;
 import com.yukgaejang.cafemenu.domain.post.order.entity.Order;
 import com.yukgaejang.cafemenu.domain.post.order.service.OrderService;
@@ -34,7 +35,7 @@ public class OrderController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<OrderResponse>> list(@RequestParam(value = "page", defaultValue = "0") int page) {
+    public ResponseEntity<OrderListResponse> list(@RequestParam(value = "page", defaultValue = "0") int page) {
         Page<Order> paging = orderService.getList(page);
 
         List<OrderResponse> responses = paging.getContent()
@@ -42,7 +43,12 @@ public class OrderController {
                 .map(OrderResponse::from)
                 .toList();
 
-        return ResponseEntity.ok(responses);
+        OrderListResponse response = new OrderListResponse(
+                paging.getTotalPages(),
+                responses
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(params = "email")
