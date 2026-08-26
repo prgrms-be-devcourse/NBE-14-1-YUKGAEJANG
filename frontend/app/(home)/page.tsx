@@ -5,6 +5,8 @@ import { CartItem, ProductListResponse, ProductResponse } from '../_shared/apis/
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
 import ProductCard from './_components/ProductCard';
 import PageHeader from './_components/PageHeader';
+import { useRouter } from 'next/navigation';
+import { CreditCardIcon, ReceiptIcon } from '../_shared/components/icons/icons';
 
 export default function Page() {
   const [productData, setProductData] = useState<ProductListResponse | null>(null); //상품 목록 저장 공간
@@ -114,6 +116,8 @@ export default function Page() {
 
     alert(`총 ${formatPrice(total)} 결제를 진행합니다.`);
   };
+
+  const router = useRouter();
 
   return (
     <main className="min-h-screen bg-[#f5f0e8] px-4 py-8 text-[#35291e] sm:px-8 lg:px-10">
@@ -279,8 +283,17 @@ export default function Page() {
                   type="submit"
                   className="flex h-[64px] w-full items-center justify-center gap-3 rounded-[11px] bg-[#95632f] text-[18px] font-semibold text-white shadow-[0_8px_15px_rgba(117,73,32,.15)] transition hover:bg-[#815326] active:scale-[0.99]"
                 >
-                  <span className="text-[20px]">♙</span>
+                  <CreditCardIcon />
                   결제하기
+                </button>
+                {/* Orders page */}
+                <button
+                  type="button"
+                  className="flex h-[64px] w-full items-center justify-center gap-3 rounded-[11px] bg-[#95632f] text-[18px] font-semibold text-white shadow-[0_8px_15px_rgba(117,73,32,.15)] transition hover:bg-[#815326] active:scale-[0.99]"
+                  onClick={() => router.push("/orders")}
+                >
+                  <ReceiptIcon />
+                  주문 내역 조회
                 </button>
               </form>
             </aside>
