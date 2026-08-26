@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Logo from './_components/Logo';
 import UserIcon from './_components/UserIcon';
 import OrderCard from './_components/OrderCard';
@@ -12,6 +12,36 @@ import mockOrders from '../_shared/mocks/orders.mock';
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderResponse[]>(mockOrders);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `http://localhost:8080/api/v1/orders?email=test@test.com&page=${page - 1}`
+        );
+
+        if (!response.ok) {
+          throw new Error("주문 내역을 불러오지 못했습니다.");
+        }
+
+        const data: OrderResponse[] = await response.json();
+
+        setOrders(data);
+      } catch (error) {
+        console.error(error);
+        setError("주문 내역을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [page]);
 
   const handleCancel = (id: number) => {
     const target = orders.find((order) => order.id === id);
