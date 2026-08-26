@@ -2,6 +2,7 @@ package com.yukgaejang.cafemenu.domain.post.order.service;
 
 import com.yukgaejang.cafemenu.domain.post.order.dto.OrderCreateRequest;
 import com.yukgaejang.cafemenu.domain.post.order.dto.OrderResponse;
+import com.yukgaejang.cafemenu.domain.post.order.dto.OrderUpdateRequest;
 import com.yukgaejang.cafemenu.domain.post.order.entity.Order;
 import com.yukgaejang.cafemenu.domain.post.order.entity.OrderItem;
 import com.yukgaejang.cafemenu.domain.post.order.repository.OrderRepository;
@@ -58,6 +59,20 @@ public class OrderService {
                     .quantity(itemReq.quantity())
                     .build());
         }
+
+        return OrderResponse.from(order);
+    }
+
+    @Transactional
+    public OrderResponse updateOrder(
+            Long orderId,
+            OrderUpdateRequest request
+    ) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.updateZipCodeAndAddress(request.zipCode(), request.address());
+        orderRepository.save(order);
 
         return OrderResponse.from(order);
     }

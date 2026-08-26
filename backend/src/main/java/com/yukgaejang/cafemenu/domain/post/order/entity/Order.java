@@ -49,4 +49,9 @@ public class Order {
         newItem.assignOrder(this);
         this.orderItems.add(newItem);
     }
+
+    public void updateZipCodeAndAddress(String zipCode, String address) {
+        this.zipCode = zipCode;
+        this.address = address;
+    }
 }
