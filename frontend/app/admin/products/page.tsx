@@ -17,11 +17,13 @@ import {
   UserIcon,
 } from '@/app/_shared/components/icons/icons';
 import EmptyState from './add/_components/EmptyState';
+import { useRouter } from 'next/navigation';
 
 const PRODUCTS = mockProducts;
 const PAGE_SIZE = 10;
 
 export default function ProductsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
@@ -124,6 +126,7 @@ export default function ProductsPage() {
               transition-colors
               hover:bg-[#9d6e39]
             "
+            onClick={() => router.push("/admin/products/add")}
           >
             <PlusIcon className="h-4 w-4" />
             상품 등록
