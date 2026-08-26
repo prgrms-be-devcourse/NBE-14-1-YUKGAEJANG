@@ -1,6 +1,7 @@
 package com.yukgaejang.cafemenu.domain.post.product.controller;
 
 import com.yukgaejang.cafemenu.domain.post.product.dto.ProductCreateRequest;
+import com.yukgaejang.cafemenu.domain.post.product.dto.ProductListResponse;
 import com.yukgaejang.cafemenu.domain.post.product.dto.ProductResponse;
 import com.yukgaejang.cafemenu.domain.post.product.entity.Product;
 import com.yukgaejang.cafemenu.domain.post.product.service.ProductService;
@@ -46,7 +47,7 @@ public class ProductController {
 
     //상품 목록 조회
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getProducts(
+    public ResponseEntity<ProductListResponse> getProducts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "direction", required = false) String direction
     ) {
@@ -58,7 +59,12 @@ public class ProductController {
                 .map(ProductResponse::from)
                 .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
+        ProductListResponse response = new ProductListResponse(
+                paging.getTotalPages(),
+                responses
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 

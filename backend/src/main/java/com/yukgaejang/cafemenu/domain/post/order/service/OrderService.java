@@ -92,4 +92,10 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page, 5);
         return this.orderRepository.findAllByEmail(email, pageable);
     }
+
+    @Transactional(readOnly = true)
+    public Boolean getEmail(String email) {
+        return this.orderRepository.existsByEmail(email);
+    }
+
 }

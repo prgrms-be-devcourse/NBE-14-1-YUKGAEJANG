@@ -13,15 +13,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -130,7 +132,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("상품 목록을 조회하면 200 OK와 상품 배열을 반환한다")
+    @DisplayName("상품 목록을 조회하면 전체 페이지 수와 상품 목록을 반환한다")
     void productControllerShouldReturnProductList() throws Exception {
         Product product = new Product(
                 "아메리카노",
@@ -146,12 +148,14 @@ public class ProductControllerTest {
 
         mockMvc.perform(get("/api/v1/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name")
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.products").isArray())
+                .andExpect(jsonPath("$.products.length()").value(1))
+                .andExpect(jsonPath("$.products[0].name")
                         .value("아메리카노"))
-                .andExpect(jsonPath("$[0].price").value(3000))
-                .andExpect(jsonPath("$[0].imageUrl")
+                .andExpect(jsonPath("$.products[0].price")
+                        .value(3000))
+                .andExpect(jsonPath("$.products[0].imageUrl")
                         .value("americano.jpg"));
 
         verify(productService).getProducts(0, null);
@@ -161,7 +165,7 @@ public class ProductControllerTest {
     @DisplayName("상품 목록 조회 시 페이지와 가격 오름차순 조건을 Service에 전달한다")
     void productControllerShouldPassAscendingSortParameters()
             throws Exception {
-        Page<Product> emptyPage = Page.empty();
+        Page<Product> emptyPage = Page.empty(PageRequest.of(2, 10));
 
         when(productService.getProducts(2, "asc"))
                 .thenReturn(emptyPage);
@@ -170,8 +174,9 @@ public class ProductControllerTest {
                         .param("page", "2")
                         .param("direction", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.totalPages").value(0))
+                .andExpect(jsonPath("$.products").isArray())
+                .andExpect(jsonPath("$.products.length()").value(0));
 
         verify(productService).getProducts(2, "asc");
     }
@@ -180,7 +185,7 @@ public class ProductControllerTest {
     @DisplayName("상품 목록 조회 시 가격 내림차순 조건을 Service에 전달한다")
     void productControllerShouldPassDescendingSortParameter()
             throws Exception {
-        Page<Product> emptyPage = Page.empty();
+        Page<Product> emptyPage = Page.empty(PageRequest.of(0, 10));
 
         when(productService.getProducts(0, "desc"))
                 .thenReturn(emptyPage);
@@ -188,7 +193,9 @@ public class ProductControllerTest {
         mockMvc.perform(get("/api/v1/products")
                         .param("direction", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.totalPages").value(0))
+                .andExpect(jsonPath("$.products").isArray())
+                .andExpect(jsonPath("$.products.length()").value(0));
 
         verify(productService).getProducts(0, "desc");
     }
