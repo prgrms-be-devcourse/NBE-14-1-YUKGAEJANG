@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,9 @@ public class StatisticsService {
 
     public List<MonthlyRevenue> getMonthlyRevenue() {
         return orderItemRepository.findMonthlyRevenue().stream()
-                .map(p -> new MonthlyRevenue(p.getMonth(), p.getRevenue()))
+                .map(p -> new MonthlyRevenue(
+                        String.format(Locale.ROOT, "%04d-%02d", p.getYear(), p.getMonth()),
+                        p.getRevenue()))
                 .toList();
     }
 

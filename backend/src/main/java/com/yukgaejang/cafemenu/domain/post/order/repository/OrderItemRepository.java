@@ -32,16 +32,18 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     // 월별 매출
     @Query("""
-        SELECT function('DATE_FORMAT', oi.order.orderDate, '%Y-%m') as month,
+        SELECT year(oi.order.orderDate) as year,
+               month(oi.order.orderDate) as month,
                SUM(oi.quantity * oi.product.price) as revenue
         FROM OrderItem oi
-        GROUP BY function('DATE_FORMAT', oi.order.orderDate, '%Y-%m')
-        ORDER BY month DESC
+        GROUP BY year(oi.order.orderDate), month(oi.order.orderDate)
+        ORDER BY year(oi.order.orderDate) DESC, month(oi.order.orderDate) DESC
     """)
     List<MonthlyRevenueProjection> findMonthlyRevenue();
 
     interface MonthlyRevenueProjection {
-        String getMonth();
+        Integer getYear();
+        Integer getMonth();
         Long getRevenue();
     }
 
