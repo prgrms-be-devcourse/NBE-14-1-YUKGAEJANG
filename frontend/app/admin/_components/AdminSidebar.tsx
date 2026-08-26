@@ -6,10 +6,16 @@ import { usePathname } from "next/navigation";
 import {
   BagIcon,
   CartIcon,
+  ChartIcon,
   ExternalIcon,
 } from "@/app/_shared/components/icons/icons";
 
 const NAV_ITEMS = [
+  {
+    label: "통계 대시보드",
+    href: "/admin/statistics",
+    icon: <ChartIcon />,
+  },
   {
     label: "주문 관리",
     href: "/admin/orders",
