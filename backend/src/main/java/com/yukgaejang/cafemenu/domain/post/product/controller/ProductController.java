@@ -49,10 +49,11 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ProductListResponse> getProducts(
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "direction", required = false) String direction
+            @RequestParam(value = "direction", required = false) String direction,
+            @RequestParam(value = "productName", required = false) String productName
     ) {
 
-        Page<Product> paging = productService.getProducts(page, direction);
+        Page<Product> paging = productService.getProducts(page, direction, productName);
 
         List<ProductResponse> responses = paging.getContent()
                 .stream()
@@ -87,4 +88,5 @@ public class ProductController {
 
         return ResponseEntity.ok(response);
     }
+
 }

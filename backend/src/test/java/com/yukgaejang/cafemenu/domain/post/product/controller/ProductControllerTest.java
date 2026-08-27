@@ -143,7 +143,7 @@ public class ProductControllerTest {
         Page<Product> productPage =
                 new PageImpl<>(List.of(product));
 
-        when(productService.getProducts(0, null))
+        when(productService.getProducts(0, null,null))
                 .thenReturn(productPage);
 
         mockMvc.perform(get("/api/v1/products"))
@@ -158,7 +158,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.products[0].imageUrl")
                         .value("americano.jpg"));
 
-        verify(productService).getProducts(0, null);
+        verify(productService).getProducts(0, null,null);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class ProductControllerTest {
             throws Exception {
         Page<Product> emptyPage = Page.empty(PageRequest.of(2, 10));
 
-        when(productService.getProducts(2, "asc"))
+        when(productService.getProducts(2, "asc",null))
                 .thenReturn(emptyPage);
 
         mockMvc.perform(get("/api/v1/products")
@@ -178,7 +178,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.products").isArray())
                 .andExpect(jsonPath("$.products.length()").value(0));
 
-        verify(productService).getProducts(2, "asc");
+        verify(productService).getProducts(2, "asc",null);
     }
 
     @Test
@@ -187,7 +187,7 @@ public class ProductControllerTest {
             throws Exception {
         Page<Product> emptyPage = Page.empty(PageRequest.of(0, 10));
 
-        when(productService.getProducts(0, "desc"))
+        when(productService.getProducts(0, "desc",null))
                 .thenReturn(emptyPage);
 
         mockMvc.perform(get("/api/v1/products")
@@ -197,7 +197,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.products").isArray())
                 .andExpect(jsonPath("$.products.length()").value(0));
 
-        verify(productService).getProducts(0, "desc");
+        verify(productService).getProducts(0, "desc",null);
     }
 
     @Test
