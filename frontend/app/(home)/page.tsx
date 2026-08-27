@@ -86,6 +86,8 @@ export default function Page() {
       return;
     }
 
+    const orderEmail = email.trim();
+
     //주문 api 연결
     const items = cart.map((item) => ({
       productId: item.product.id,
@@ -93,7 +95,7 @@ export default function Page() {
     }));
 
     const requestBody = {
-      email,
+      email: orderEmail,
       zipCode,
       address,
       items,
@@ -115,7 +117,11 @@ export default function Page() {
       return;
     }
 
-    alert(`총 ${formatPrice(total)} 결제를 진행합니다.`);
+    alert('주문이 완료되었습니다.');
+    setCart([]);
+    setEmail('');
+    setAddress('');
+    setZipCode('');
   };
 
   const router = useRouter();
