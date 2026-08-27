@@ -1,7 +1,7 @@
 "use client";
 
 import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import Logo from "../_components/Logo";
@@ -11,7 +11,7 @@ import {
   OrderResponse,
   OrderListResponse,
 } from "../../_shared/apis/orderApi.type";
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function OrdersPage() {
   const searchParams = useSearchParams();
@@ -22,39 +22,44 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!email) return;
+  // 주문 목록 조회
+  const requestOrders = useCallback(async () => {
+    if (!email) return null;
 
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
+      );
 
-        const response = await fetch(
-            `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
-        );
-
-        if (!response.ok) {
-          throw new Error("주문 내역을 불러오지 못했습니다.");
-        }
-
-        const data: OrderListResponse = await response.json();
-
-        setOrders(data.orders);
-        setTotalPages(data.totalPages);
-      } catch (error) {
-        console.error(error);
-        setError("주문 내역을 불러오지 못했습니다.");
-      } finally {
-        setLoading(false);
+      // 주문이 없는 경우
+      if (response.status === 404) {
+        return {
+          orders: [],
+          totalPages: 0,
+        };
       }
-    };
 
-    fetchOrders();
+      if (!response.ok) {
+        throw new Error("주문 내역을 불러오지 못했습니다.");
+      }
+
+      const data: OrderListResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }, [email, page]);
+
+  // 페이지 또는 이메일이 변경되면 주문 목록 조회
+  useEffect(() => {
+    void requestOrders().then((data) => {
+      if (!data) return;
+      setOrders(data.orders);
+      setTotalPages(data.totalPages);
+    });
+  }, [requestOrders]);
 
   const handleUpdateOrder = async (
     id: number,
@@ -73,7 +78,7 @@ export default function OrdersPage() {
     });
 
     if (!response.ok) {
-      throw new Error('배송지 수정에 실패했습니다.');
+      throw new Error("배송지 수정에 실패했습니다.");
     }
 
     setOrders((current) =>
@@ -88,26 +93,59 @@ export default function OrdersPage() {
       )
     );
 
-    window.alert('주문을 수정하였습니다.');
+    window.alert("주문을 수정하였습니다.");
   };
 
-  const handleCancel = (id: number) => {
-    const target = orders.find((order) => order.id === id);
+  // 주문 취소
+  const handleCancel = async (id: number) => {
+  const target = orders.find((order) => order.id === id);
 
-    if (!target) return;
+  if (!target) return;
 
-    const confirmed = window.confirm(
-      `${target.id} 주문을 취소하시겠습니까?`
-    );
+  const confirmed = window.confirm(
+    `${target.id} 주문을 취소하시겠습니까?`
+  );
 
-    if (!confirmed) return;
+  if (!confirmed) return;
 
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === id ? { ...order, cancelled: true } : order
-      )
-    );
-  };
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("주문 취소에 실패했습니다.");
+    }
+
+    // 삭제 후 주문 목록 다시 조회
+    const data = await requestOrders();
+
+    if (data) {
+      setOrders(data.orders);
+      setTotalPages(data.totalPages);
+    }
+
+    // 전체 페이지 수가 0이면 주문 페이지로 이동
+    if (data && data.totalPages === 0) {
+      window.alert(
+        "현재 주문내역이 없습니다. 주문 페이지로 이동합니다."
+      );
+
+      window.location.href = "/";
+      return;
+    }
+
+    // 현재 페이지에 주문이 없으면 이전 페이지로 이동
+    if (data && data.orders.length === 0 && page > 1) {
+      setPage((current) => current - 1);
+    }
+
+    window.alert("주문이 취소되었습니다.");
+  } catch (error) {
+    console.error(error);
+    window.alert("주문 취소에 실패했습니다.");
+  }
+};
 
   const changePage = (nextPage: number) => {
     setPage(nextPage);
