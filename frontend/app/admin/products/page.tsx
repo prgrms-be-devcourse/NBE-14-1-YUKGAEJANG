@@ -27,6 +27,8 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [productsData, setProductsData] =
     useState<ProductListResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   /*
    * 상품 목록 조회
@@ -35,6 +37,10 @@ export default function ProductsPage() {
    * 프론트의 page(1부터 시작)에서 1을 빼서 전달한다.
    */
   const fetchProducts = async (targetPage: number) => {
+    await Promise.resolve();
+    setIsLoading(true);
+    setErrorMessage('');
+
     try {
       const response = await fetch(
         `${API_BASE_URL}/products?page=${targetPage - 1}`,
@@ -52,6 +58,14 @@ export default function ProductsPage() {
       setProductsData(responseData);
     } catch (error) {
       console.error(error);
+      setProductsData(null);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : '상품 목록 조회 중 오류가 발생했습니다.',
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +73,7 @@ export default function ProductsPage() {
    * 페이지가 변경될 때마다 상품 목록 조회
    */
   useEffect(() => {
-    fetchProducts(page);
+    void Promise.resolve().then(() => fetchProducts(page));
   }, [page]);
 
   /*
@@ -196,7 +210,7 @@ export default function ProductsPage() {
        * totalPages를 확인한 후 이전 페이지로 이동한다.
        */
       const responseAfterDelete = await fetch(
-        `http://localhost:8080/api/v1/products?page=${page - 1}`,
+        `${API_BASE_URL}/products?page=${page - 1}`,
         {
           method: 'GET',
         },
@@ -315,7 +329,7 @@ export default function ProductsPage() {
               </thead>
 
               <tbody>
-                {filteredProducts.map((product) => (
+                {!isLoading && !errorMessage && filteredProducts.map((product) => (
                   <ProductRow
                     key={product.id}
                     product={product}
@@ -334,7 +348,23 @@ export default function ProductsPage() {
                   />
                 ))}
 
-                {filteredProducts.length === 0 && (
+                {isLoading && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-16 text-center text-sm text-[#8d7d70]">
+                      상품 목록을 불러오는 중입니다.
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && errorMessage && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-16 text-center text-sm text-red-600">
+                      {errorMessage}
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && !errorMessage && filteredProducts.length === 0 && (
                   <tr>
                     <td colSpan={5}>
                       <EmptyState />

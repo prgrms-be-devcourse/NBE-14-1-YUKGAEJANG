@@ -31,6 +31,8 @@ export default function AdminOrdersPage() {
 
   const [errorMessage, setErrorMessage] =
       useState('');
+  const [isLoading, setIsLoading] =
+      useState(true);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -61,6 +63,7 @@ export default function AdminOrdersPage() {
       }
 
       try {
+        setIsLoading(true);
         setErrorMessage('');
 
         const response = await fetch(
@@ -87,6 +90,8 @@ export default function AdminOrdersPage() {
                 ? error.message
                 : '주문 조회 중 오류가 발생했습니다.',
         );
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -239,7 +244,7 @@ export default function AdminOrdersPage() {
           </button>
         </section>
 
-        {errorMessage && (
+        {!isLoading && errorMessage && (
             <p className="mb-5 text-[14px] text-red-600">
               {errorMessage}
             </p>
@@ -247,13 +252,21 @@ export default function AdminOrdersPage() {
 
         {/* Orders */}
         <div className="space-y-3">
-          {orders.map((order) => (
+          {isLoading ? (
+            <div className="rounded-[14px] bg-white/80 px-6 py-14 text-center text-sm text-[#7b7066]">
+              주문 내역을 불러오는 중입니다.
+            </div>
+          ) : !errorMessage && orders.length === 0 ? (
+            <div className="rounded-[14px] bg-white/80 px-6 py-14 text-center text-sm text-[#7b7066]">
+              조회된 주문 내역이 없습니다.
+            </div>
+          ) : !errorMessage ? orders.map((order) => (
             <OrderCard key={order.id} order={order} onCancel={handleCancel} />
-          ))}
+          )) : null}
         </div>
 
         {/* Pagination */}
-        {totalPages > 0 && (
+        {!isLoading && !errorMessage && totalPages > 0 && (
         <nav className="mt-5 flex items-center justify-center gap-2">
           <button
             type="button"

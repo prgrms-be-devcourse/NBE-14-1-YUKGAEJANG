@@ -22,43 +22,76 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 주문 목록 조회
   const requestOrders = useCallback(async () => {
     if (!email) return null;
 
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
-      );
+    const response = await fetch(
+      `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
+    );
 
-      // 주문이 없는 경우
-      if (response.status === 404) {
-        return {
-          orders: [],
-          totalPages: 0,
-        };
-      }
-
-      if (!response.ok) {
-        throw new Error("주문 내역을 불러오지 못했습니다.");
-      }
-
-      const data: OrderListResponse = await response.json();
-      return data;
-    } catch (error) {
-      console.error(error);
-      return null;
+    // 주문이 없는 경우
+    if (response.status === 404) {
+      return {
+        orders: [],
+        totalPages: 0,
+      };
     }
+
+    if (!response.ok) {
+      throw new Error("주문 내역을 불러오지 못했습니다.");
+    }
+
+    const data: OrderListResponse = await response.json();
+    return data;
   }, [email, page]);
 
   // 페이지 또는 이메일이 변경되면 주문 목록 조회
   useEffect(() => {
-    void requestOrders().then((data) => {
-      if (!data) return;
-      setOrders(data.orders);
-      setTotalPages(data.totalPages);
-    });
+    let isActive = true;
+
+    void Promise.resolve()
+      .then(() => {
+        if (!isActive) return null;
+        setIsLoading(true);
+        setErrorMessage('');
+        return requestOrders();
+      })
+      .then((data) => {
+        if (!isActive) return;
+
+        if (!data) {
+          setOrders([]);
+          setTotalPages(0);
+          setErrorMessage('주문 조회에 필요한 이메일 정보가 없습니다.');
+          return;
+        }
+
+        setOrders(data.orders);
+        setTotalPages(data.totalPages);
+      })
+      .catch((error) => {
+        if (!isActive) return;
+
+        console.error(error);
+        setOrders([]);
+        setTotalPages(0);
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : '주문 조회 중 오류가 발생했습니다.',
+        );
+      })
+      .finally(() => {
+        if (isActive) setIsLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
   }, [requestOrders]);
 
   const handleUpdateOrder = async (
@@ -187,7 +220,19 @@ export default function OrdersPage() {
 
         {/* Orders */}
         <div className="space-y-3">
-          {orders.map((order) => (
+          {isLoading ? (
+            <div className="rounded-[14px] bg-white/80 px-6 py-14 text-center text-sm text-[#7b7066]">
+              주문 내역을 불러오는 중입니다.
+            </div>
+          ) : errorMessage ? (
+            <div className="rounded-[14px] bg-white/80 px-6 py-14 text-center text-sm text-red-600">
+              {errorMessage}
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="rounded-[14px] bg-white/80 px-6 py-14 text-center text-sm text-[#7b7066]">
+              조회된 주문 내역이 없습니다.
+            </div>
+          ) : orders.map((order) => (
             <OrderCard
               key={order.id}
               order={order}
@@ -198,7 +243,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Pagination */}
-        {totalPages > 0 && (
+        {!isLoading && !errorMessage && totalPages > 0 && (
           <nav className="mt-5 flex items-center justify-center gap-2">
             {/* 이전 페이지 */}
             <button
