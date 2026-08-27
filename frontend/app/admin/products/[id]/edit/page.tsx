@@ -130,7 +130,7 @@ export default function ProductEditPage() {
     if (isLoading) {
         return (
             <main className="min-w-0 flex-1 px-6 py-10 lg:px-10">
-                <div className="mx-auto max-w-[720px]">
+                <div className="mx-auto max-w-[1080px]">
                     <div className="h-[420px] animate-pulse rounded-2xl bg-[#eee8e2]" />
                 </div>
             </main>
@@ -139,7 +139,7 @@ export default function ProductEditPage() {
 
     return (
         <main className="min-w-0 flex-1 px-6 py-10 lg:px-10">
-            <div className="mx-auto max-w-[720px]">
+            <div className="mx-auto max-w-[1080px]">
                 <div className="mb-7">
                     <h1 className="text-[28px] font-bold tracking-[-0.04em] text-[#392c23]">
                         상품 수정
