@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -33,9 +34,7 @@ export default function OrdersPage() {
         setError("");
 
         const response = await fetch(
-          `http://localhost:8080/api/v1/orders?email=${encodeURIComponent(
-            email
-          )}&page=${page - 1}`
+            `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
         );
 
         if (!response.ok) {
@@ -62,19 +61,16 @@ export default function OrdersPage() {
     address: string,
     zipCode: string
   ) => {
-    const response = await fetch(
-      `http://localhost:8080/api/v1/orders/${id}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          address,
-          zipCode,
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        address,
+        zipCode,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error('배송지 수정에 실패했습니다.');

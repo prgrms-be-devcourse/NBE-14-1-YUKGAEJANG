@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { ProductCreateRequest } from '@/app/_shared/apis/productApi.type';
 
 const PRODUCT_IMAGES = Array.from(
@@ -67,7 +68,7 @@ export default function AdminProductsAddPage() {
       imageUrl,
     };
 
-    const response = await fetch('http://localhost:8080/api/v1/products', {
+    const response = await fetch(`${API_BASE_URL}/products`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

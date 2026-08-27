@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import Logo from './_components/Logo';
 import UserIcon from './_components/UserIcon';
 import OrderCard from './_components/OrderCard';
@@ -14,7 +15,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     async function fetchOrders() {
       const response = await fetch(
-        `http://localhost:8080/api/v1/orders?page=${page - 1}`,
+        `${API_BASE_URL}/orders?page=${page - 1}`,
       );
 
       const responseData = await response.json();
@@ -36,7 +37,7 @@ export default function AdminOrdersPage() {
 
     if (!confirmed) return;
 
-    const response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
       method: 'DELETE',
     });
 

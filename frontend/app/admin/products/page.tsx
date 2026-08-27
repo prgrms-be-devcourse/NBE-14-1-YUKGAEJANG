@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { ProductListResponse, ProductResponse } from '@/app/_shared/apis/productApi.type';
 
 import {
@@ -29,7 +30,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      const response = await fetch('http://localhost:8080/api/v1/products', {
+      const response = await fetch(`${API_BASE_URL}/products`, {
         method: 'GET',
       });
 
@@ -118,7 +119,7 @@ export default function ProductsPage() {
     }
 
     const response = await fetch(
-      `http://localhost:8080/api/v1/products/${id}`,
+      `${API_BASE_URL}/products/${id}`,
       {
         method: 'DELETE',
       },
