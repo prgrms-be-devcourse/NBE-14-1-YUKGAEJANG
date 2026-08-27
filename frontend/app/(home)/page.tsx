@@ -2,7 +2,11 @@
 
 import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { useEffect, useMemo, useState } from 'react';
-import { CartItem, ProductListResponse, ProductResponse } from '../_shared/apis/productApi.type';
+import {
+  CartItem,
+  ProductListResponse,
+  ProductResponse,
+} from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
 import ProductCard from './_components/ProductCard';
 import PageHeader from './_components/PageHeader';
@@ -10,19 +14,28 @@ import { useRouter } from 'next/navigation';
 import { CreditCardIcon, ReceiptIcon } from '../_shared/components/icons/icons';
 
 export default function Page() {
-  const [productData, setProductData] = useState<ProductListResponse | null>(null); //상품 목록 저장 공간
+  const [productData, setProductData] = useState<ProductListResponse | null>(
+    null,
+  );
+
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
     async function fetchProducts() {
-      const response = await fetch(`${API_BASE_URL}/products`, {
-        method: 'GET',
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/products?page=${page - 1}`,
+        {
+          method: 'GET',
+        },
+      );
 
-      const responseData = await response.json();
+      const responseData: ProductListResponse = await response.json();
+
       setProductData(responseData);
     }
 
     fetchProducts();
-  }, []);
+  }, [page]);
 
   const [cart, setCart] = useState<CartItem[]>([]); //처음에 선택된 상품 없게
   const [email, setEmail] = useState('');
@@ -151,7 +164,29 @@ export default function Page() {
                   />
                 ))}
               </div>
+
+              <div className="mt-8 flex justify-center gap-2">
+                {Array.from(
+                  { length: productData?.totalPages ?? 0 },
+                  (_, index) => index + 1,
+                ).map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setPage(pageNumber)}
+                    className={`h-9 w-9 rounded-md text-sm ${
+                      page === pageNumber
+                        ? 'bg-[#95632f] text-white'
+                        : 'bg-[#eee6dc] text-[#735c43]'
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Order Summary */}
 
             {/* Order Summary */}
             <aside className="border-t border-[#eee6dc] bg-[#f8f3eb]/90 p-8 sm:p-10 lg:border-l lg:border-t-0">
@@ -297,7 +332,7 @@ export default function Page() {
                 <button
                   type="button"
                   className="flex h-[64px] w-full items-center justify-center gap-3 rounded-[11px] bg-[#95632f] text-[18px] font-semibold text-white shadow-[0_8px_15px_rgba(117,73,32,.15)] transition hover:bg-[#815326] active:scale-[0.99]"
-                  onClick={() => router.push("/orders")}
+                  onClick={() => router.push('/orders')}
                 >
                   <ReceiptIcon />
                   주문 내역 조회
