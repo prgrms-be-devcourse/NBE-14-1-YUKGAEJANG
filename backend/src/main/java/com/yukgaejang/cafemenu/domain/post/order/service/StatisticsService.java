@@ -33,7 +33,8 @@ public class StatisticsService {
         return orderItemRepository.findMonthlyRevenue().stream()
                 .map(p -> new MonthlyRevenue(
                         String.format(Locale.ROOT, "%04d-%02d", p.getYear(), p.getMonth()),
-                        p.getRevenue()))
+                        p.getRevenue())).toList();
+    }
 
     public List<TopProduct> getTopProducts(int limit) {
         return orderItemRepository.findTopSellingProducts(PageRequest.of(0, limit)).stream()
