@@ -33,6 +33,10 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.3"))
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-mysql")
+    runtimeOnly("com.mysql:mysql-connector-j")
 }
 
 tasks.withType<Test> {
