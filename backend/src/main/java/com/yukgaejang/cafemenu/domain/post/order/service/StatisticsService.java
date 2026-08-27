@@ -25,7 +25,7 @@ public class StatisticsService {
 
     public List<DailyRevenue> getDailyRevenue() {
         return orderItemRepository.findDailyRevenue().stream()
-                .map(p -> new DailyRevenue(p.getDate(), p.getRevenue()))
+                .map(p -> new DailyRevenue(p.getDate().toString(), p.getRevenue()))
                 .toList();
     }
 
@@ -34,8 +34,6 @@ public class StatisticsService {
                 .map(p -> new MonthlyRevenue(
                         String.format(Locale.ROOT, "%04d-%02d", p.getYear(), p.getMonth()),
                         p.getRevenue()))
-                .toList();
-    }
 
     public List<TopProduct> getTopProducts(int limit) {
         return orderItemRepository.findTopSellingProducts(PageRequest.of(0, limit)).stream()

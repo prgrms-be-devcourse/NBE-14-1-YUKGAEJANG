@@ -11,22 +11,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     // 일별 매출
     @Query("""
-        SELECT function('DATE', oi.order.orderDate) as date,
-               SUM(oi.quantity * oi.product.price) as revenue
-        FROM OrderItem oi
-        GROUP BY function('DATE', oi.order.orderDate)
-        ORDER BY date DESC
-    """)
+    SELECT cast(oi.order.orderDate as LocalDate) as date,
+           SUM(oi.quantity * oi.product.price) as revenue
+    FROM OrderItem oi
+    GROUP BY cast(oi.order.orderDate as LocalDate)
+    ORDER BY date DESC
+""")
     List<DailyRevenueProjection> findDailyRevenue();
 
     interface DailyRevenueProjection {
-        String getDate();
+        LocalDate getDate();
         Long getRevenue();
     }
 
