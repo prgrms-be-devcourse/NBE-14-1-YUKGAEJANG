@@ -1,8 +1,13 @@
 "use client";
 
 import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
-import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import Logo from "../_components/Logo";
 import UserIcon from "../_components/UserIcon";
@@ -13,7 +18,7 @@ import {
 } from "../../_shared/apis/orderApi.type";
 import Link from "next/link";
 
-export default function OrdersPage() {
+function OrdersPageContent() {
   const searchParams = useSearchParams();
 
   // URL에서 이메일 가져오기
@@ -288,5 +293,21 @@ export default function OrdersPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+      <Suspense
+          fallback={
+            <main className="flex min-h-screen items-center justify-center bg-[#f8f4ee] text-[#3b3027]">
+              <p className="text-sm text-[#7b7066]">
+                주문 내역을 불러오는 중입니다.
+              </p>
+            </main>
+          }
+      >
+        <OrdersPageContent />
+      </Suspense>
   );
 }
