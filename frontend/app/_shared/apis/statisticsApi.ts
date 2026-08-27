@@ -4,9 +4,7 @@ import type {
   StatisticsDashboardData,
   TopProduct,
 } from './statisticsApi.type';
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api/v1';
+import { API_BASE_URL } from './apiConfig';
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {

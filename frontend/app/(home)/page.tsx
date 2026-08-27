@@ -1,5 +1,6 @@
 'use client';
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { useEffect, useMemo, useState } from 'react';
 import { CartItem, ProductListResponse, ProductResponse } from '../_shared/apis/productApi.type';
 import formatPrice from '../_shared/utils/numberUtils/formatPrice';
@@ -12,7 +13,7 @@ export default function Page() {
   const [productData, setProductData] = useState<ProductListResponse | null>(null); //상품 목록 저장 공간
   useEffect(() => {
     async function fetchProducts() {
-      const response = await fetch('http://localhost:8080/api/v1/products', {
+      const response = await fetch(`${API_BASE_URL}/products`, {
         method: 'GET',
       });
 
@@ -98,7 +99,7 @@ export default function Page() {
       items,
     };
 
-    const response = await fetch('http://localhost:8080/api/v1/orders', {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

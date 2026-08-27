@@ -3,10 +3,13 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import type { ProductResponse } from '@/app/_shared/apis/productApi.type';
 
-const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api/v1';
+const PRODUCT_IMAGES = Array.from(
+    { length: 10 },
+    (_, index) => `/imgs/product_type_${index}.png`,
+);
 
 export default function ProductEditPage() {
     const params = useParams<{ id: string }>();
@@ -20,6 +23,7 @@ export default function ProductEditPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -78,8 +82,14 @@ export default function ProductEditPage() {
             return;
         }
 
+        if (!PRODUCT_IMAGES.includes(imageUrl)) {
+            setImageError('목록에서 상품 이미지를 선택해 주세요.');
+            return;
+        }
+
         setIsSubmitting(true);
         setError(null);
+        setImageError(null);
 
         try {
             const response = await fetch(
@@ -119,7 +129,7 @@ export default function ProductEditPage() {
     if (isLoading) {
         return (
             <main className="min-w-0 flex-1 px-6 py-10 lg:px-10">
-                <div className="mx-auto max-w-[720px]">
+                <div className="mx-auto max-w-[1080px]">
                     <div className="h-[420px] animate-pulse rounded-2xl bg-[#eee8e2]" />
                 </div>
             </main>
@@ -128,14 +138,14 @@ export default function ProductEditPage() {
 
     return (
         <main className="min-w-0 flex-1 px-6 py-10 lg:px-10">
-            <div className="mx-auto max-w-[720px]">
+            <div className="mx-auto max-w-[1080px]">
                 <div className="mb-7">
                     <h1 className="text-[28px] font-bold tracking-[-0.04em] text-[#392c23]">
                         상품 수정
                     </h1>
 
                     <p className="mt-2 text-sm text-[#96877b]">
-                        상품명, 가격, 이미지 주소를 수정할 수 있습니다.
+                        상품명, 가격, 대표 이미지를 수정할 수 있습니다.
                     </p>
                 </div>
 
@@ -181,16 +191,69 @@ export default function ProductEditPage() {
                         </div>
                     </FormField>
 
-                    <FormField label="이미지 URL">
-                        <input
-                            type="url"
-                            value={imageUrl}
-                            onChange={(event) => setImageUrl(event.target.value)}
-                            maxLength={255}
-                            placeholder="https://example.com/product.png"
-                            className="h-11 w-full rounded-lg border border-[#e8e0d8] px-4 text-sm text-[#44362c] outline-none placeholder:text-[#b2a59b] focus:border-[#c7a77f]"
-                        />
-                    </FormField>
+                    <div>
+                        <div className="mb-2.5">
+                            <p className="text-sm font-semibold text-[#58483c]">
+                                상품 이미지
+                                <span className="ml-1 text-[#b86b59]">*</span>
+                            </p>
+
+                            <p className="mt-1.5 text-xs text-[#9b8d82]">
+                                상품 대표 이미지를 선택해 주세요.
+                                <span className="ml-1 text-[#b0a299]">
+                                    (product_type_0.png ~ product_type_9.png)
+                                </span>
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+                            {PRODUCT_IMAGES.map((image) => {
+                                const selected = imageUrl === image;
+
+                                return (
+                                    <button
+                                        key={image}
+                                        type="button"
+                                        onClick={() => {
+                                            setImageUrl(image);
+                                            setImageError(null);
+                                        }}
+                                        className={`group relative overflow-hidden rounded-xl border bg-white p-3 text-left transition-all ${
+                                            selected
+                                                ? 'border-[#b8894e] ring-1 ring-[#b8894e]'
+                                                : 'border-[#ebe3db] hover:border-[#ccb397]'
+                                        }`}
+                                    >
+                                        {selected && (
+                                            <span className="absolute right-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-[#a9763e] text-white shadow-sm">
+                                                <CheckIcon className="h-4 w-4" />
+                                            </span>
+                                        )}
+
+                                        <div className="flex h-[130px] items-center justify-center rounded-lg bg-[#fcfaf7]">
+                                            <img
+                                                src={image}
+                                                alt={`상품 이미지 ${image}`}
+                                                className="h-[115px] w-auto object-contain transition-transform group-hover:scale-[1.03]"
+                                            />
+                                        </div>
+
+                                        <p className={`mt-3 truncate text-center text-[11px] ${
+                                            selected
+                                                ? 'font-semibold text-[#8d6338]'
+                                                : 'text-[#786a5e]'
+                                        }`}>
+                                            {image.split('/').pop()}
+                                        </p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {imageError && (
+                            <p className="mt-2 text-xs text-[#d56f67]">{imageError}</p>
+                        )}
+                    </div>
 
                     {error && (
                         <p
@@ -222,6 +285,23 @@ export default function ProductEditPage() {
                 </form>
             </div>
         </main>
+    );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+            aria-hidden="true"
+        >
+            <path d="m5 12 4.2 4.2L19 6.7" />
+        </svg>
     );
 }
 

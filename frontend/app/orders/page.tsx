@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "./_components/Logo";
@@ -34,11 +35,9 @@ export default function OrderEmailPage() {
   
     try {
       setLoading(true);
-  
+
       const response = await fetch(
-        `http://localhost:8080/api/v1/orders/email?email=${encodeURIComponent(
-          trimmedEmail
-        )}`
+          `${API_BASE_URL}/orders/email?email=${encodeURIComponent(trimmedEmail)}`,
       );
   
       if (!response.ok) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import Logo from "../_components/Logo";
@@ -21,75 +22,60 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // 주문 목록 조회
-  const fetchOrders = async () => {
-  if (!email) return null;
+  const requestOrders = useCallback(async () => {
+    if (!email) return null;
 
-  try {
-    setLoading(true);
-    setError("");
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/orders?email=${encodeURIComponent(email)}&page=${page - 1}`,
+      );
 
-    const response = await fetch(
-      `http://localhost:8080/api/v1/orders?email=${encodeURIComponent(
-        email
-      )}&page=${page - 1}`
-    );
+      // 주문이 없는 경우
+      if (response.status === 404) {
+        return {
+          orders: [],
+          totalPages: 0,
+        };
+      }
 
-    // 주문이 없는 경우
-    if (response.status === 404) {
-      setOrders([]);
-      setTotalPages(0);
-      return {
-        orders: [],
-        totalPages: 0,
-      };
+      if (!response.ok) {
+        throw new Error("주문 내역을 불러오지 못했습니다.");
+      }
+
+      const data: OrderListResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
     }
-
-    if (!response.ok) {
-      throw new Error("주문 내역을 불러오지 못했습니다.");
-    }
-
-    const data: OrderListResponse = await response.json();
-
-    setOrders(data.orders);
-    setTotalPages(data.totalPages);
-
-    return data;
-  } catch (error) {
-    console.error(error);
-    setError("주문 내역을 불러오지 못했습니다.");
-    return null;
-  } finally {
-    setLoading(false);
-  }
-};
+  }, [email, page]);
 
   // 페이지 또는 이메일이 변경되면 주문 목록 조회
   useEffect(() => {
-    fetchOrders();
-  }, [email, page]);
+    void requestOrders().then((data) => {
+      if (!data) return;
+      setOrders(data.orders);
+      setTotalPages(data.totalPages);
+    });
+  }, [requestOrders]);
 
   const handleUpdateOrder = async (
     id: number,
     address: string,
     zipCode: string
   ) => {
-    const response = await fetch(
-      `http://localhost:8080/api/v1/orders/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          address,
-          zipCode,
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        address,
+        zipCode,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("배송지 수정에 실패했습니다.");
@@ -123,19 +109,21 @@ export default function OrdersPage() {
   if (!confirmed) return;
 
   try {
-    const response = await fetch(
-      `http://localhost:8080/api/v1/orders/${id}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+      method: "DELETE",
+    });
 
     if (!response.ok) {
       throw new Error("주문 취소에 실패했습니다.");
     }
 
     // 삭제 후 주문 목록 다시 조회
-    const data = await fetchOrders();
+    const data = await requestOrders();
+
+    if (data) {
+      setOrders(data.orders);
+      setTotalPages(data.totalPages);
+    }
 
     // 전체 페이지 수가 0이면 주문 페이지로 이동
     if (data && data.totalPages === 0) {

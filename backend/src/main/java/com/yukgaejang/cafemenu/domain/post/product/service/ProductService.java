@@ -23,6 +23,12 @@ public class ProductService {
 
     //상품 등록용(create)
     public ProductResponse create(ProductCreateRequest request) {
+
+        //같은 상품이 존재하면 에러 던지게
+        if (productRepository.existsByName(request.name())) {
+            throw new ApiException(ErrorCode.PRODUCT_ALREADY_EXISTS);
+        }
+        
         Product product = new Product(
                 request.name(),
                 request.price(),

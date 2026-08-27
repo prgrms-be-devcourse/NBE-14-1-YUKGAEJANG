@@ -1,30 +1,129 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Logo from './_components/Logo';
-import UserIcon from './_components/UserIcon';
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
 import OrderCard from './_components/OrderCard';
-import { OrderResponse } from '@/app/_shared/apis/orderApi.type';
+import {
+  OrderListResponse,
+  OrderResponse,
+} from '@/app/_shared/apis/orderApi.type';
+
+type SearchType = 'product' | 'date';
+type ActiveSearchType = 'all' | SearchType;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  // 검색창에서 선택하고 입력한 값
+  const [searchType, setSearchType] =
+      useState<SearchType>('product');
+
+  const [searchValue, setSearchValue] =
+      useState('');
+
+// 실제 API 요청에 적용된 검색 조건
+  const [activeSearchType, setActiveSearchType] =
+      useState<ActiveSearchType>('all');
+
+  const [activeSearchValue, setActiveSearchValue] =
+      useState('');
+
+  const [errorMessage, setErrorMessage] =
+      useState('');
 
   useEffect(() => {
     async function fetchOrders() {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/orders?page=${page - 1}`,
-      );
+      const params = new URLSearchParams({
+        page: String(page - 1),
+      });
 
-      const responseData = await response.json();
+      let path = '/orders';
 
-      setOrders(responseData.orders);
-      setTotalPages(responseData.totalPages);
+      // 상품명 검색 API
+      if (activeSearchType === 'product') {
+        path = '/orders/search/product';
+
+        params.set(
+            'productName',
+            activeSearchValue,
+        );
+      }
+
+      // 주문일 검색 API
+      if (activeSearchType === 'date') {
+        path = '/orders/search/date';
+
+        params.set(
+            'orderDate',
+            activeSearchValue,
+        );
+      }
+
+      try {
+        setErrorMessage('');
+
+        const response = await fetch(
+            `${API_BASE_URL}${path}?${params.toString()}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(
+              '주문 내역 조회에 실패했습니다.',
+          );
+        }
+
+        const responseData: OrderListResponse =
+            await response.json();
+
+        setOrders(responseData.orders);
+        setTotalPages(responseData.totalPages);
+      } catch (error) {
+        setOrders([]);
+        setTotalPages(0);
+
+        setErrorMessage(
+            error instanceof Error
+                ? error.message
+                : '주문 조회 중 오류가 발생했습니다.',
+        );
+      }
     }
 
-    fetchOrders();
-  }, [page]);
+    void fetchOrders();
+  }, [
+    page,
+    activeSearchType,
+    activeSearchValue,
+  ]);
+
+  const handleSearch = () => {
+    const value = searchValue.trim();
+
+    if (!value) {
+      setErrorMessage(
+          searchType === 'product'
+              ? '상품명을 입력해주세요.'
+              : '주문일을 선택해주세요.',
+      );
+
+      return;
+    }
+
+    // 검색하면 첫 페이지부터 조회
+    setPage(1);
+    setActiveSearchType(searchType);
+    setActiveSearchValue(value);
+    setErrorMessage('');
+  };
+
+  const handleResetSearch = () => {
+    setSearchValue('');
+    setPage(1);
+    setActiveSearchType('all');
+    setActiveSearchValue('');
+    setErrorMessage('');
+  };
 
   // 관리자가 주문 취소 기능
   const handleCancel = async (id: number) => {
@@ -36,7 +135,7 @@ export default function AdminOrdersPage() {
 
     if (!confirmed) return;
 
-    const response = await fetch(`http://localhost:8080/api/v1/orders/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
       method: 'DELETE',
     });
 
@@ -69,6 +168,83 @@ export default function AdminOrdersPage() {
           </p>
         </div>
 
+        {/* Order Search */}
+        <section className="mb-7 flex flex-wrap items-end gap-3 rounded-[14px] bg-white/80 p-5">
+          <label className="flex flex-col gap-2">
+    <span className="text-[14px] text-[#665a50]">
+      검색 조건
+    </span>
+
+            <select
+                value={searchType}
+                onChange={(event) => {
+                  setSearchType(
+                      event.target.value as SearchType,
+                  );
+
+                  setSearchValue('');
+                }}
+                className="h-11 rounded-[8px] border border-[#ddd3c9] bg-white px-4"
+            >
+              <option value="product">
+                상품명
+              </option>
+
+              <option value="date">
+                주문일
+              </option>
+            </select>
+          </label>
+
+          <label className="flex flex-1 flex-col gap-2">
+    <span className="text-[14px] text-[#665a50]">
+      {searchType === 'product'
+          ? '상품명'
+          : '주문일'}
+    </span>
+
+            <input
+                type={
+                  searchType === 'product'
+                      ? 'text'
+                      : 'date'
+                }
+                value={searchValue}
+                onChange={(event) =>
+                    setSearchValue(event.target.value)
+                }
+                placeholder={
+                  searchType === 'product'
+                      ? '정확한 상품명을 입력해주세요.'
+                      : undefined
+                }
+                className="h-11 rounded-[8px] border border-[#ddd3c9] bg-white px-4"
+            />
+          </label>
+
+          <button
+              type="button"
+              onClick={handleSearch}
+              className="h-11 rounded-[8px] bg-[#5b4636] px-7 font-semibold text-white"
+          >
+            검색
+          </button>
+
+          <button
+              type="button"
+              onClick={handleResetSearch}
+              className="h-11 rounded-[8px] border border-[#cfc3b7] bg-white px-6"
+          >
+            전체 보기
+          </button>
+        </section>
+
+        {errorMessage && (
+            <p className="mb-5 text-[14px] text-red-600">
+              {errorMessage}
+            </p>
+        )}
+
         {/* Orders */}
         <div className="space-y-3">
           {orders.map((order) => (
@@ -77,6 +253,7 @@ export default function AdminOrdersPage() {
         </div>
 
         {/* Pagination */}
+        {totalPages > 0 && (
         <nav className="mt-5 flex items-center justify-center gap-2">
           <button
             type="button"
@@ -107,7 +284,7 @@ export default function AdminOrdersPage() {
 
           <button
             type="button"
-            disabled={page === totalPages}
+            disabled={page >= totalPages}
             onClick={() => changePage(Math.min(totalPages, page + 1))}
             className="flex h-9 w-9 items-center justify-center text-[25px] text-[#74675b] disabled:cursor-default disabled:opacity-40"
             aria-label="다음 페이지"
@@ -115,6 +292,7 @@ export default function AdminOrdersPage() {
             ›
           </button>
         </nav>
+        )}
       </div>
     </main>
   );

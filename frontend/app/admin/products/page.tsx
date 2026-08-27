@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
-import {
-  ProductListResponse,
-  ProductResponse,
-} from '@/app/_shared/apis/productApi.type';
+import { API_BASE_URL } from '@/app/_shared/apis/apiConfig';
+import { ProductListResponse, ProductResponse } from '@/app/_shared/apis/productApi.type';
 
 import {
   ChevronDownIcon,
@@ -40,7 +37,7 @@ export default function ProductsPage() {
   const fetchProducts = async (targetPage: number) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1/products?page=${targetPage - 1}`,
+        `${API_BASE_URL}/products?page=${targetPage - 1}`,
         {
           method: 'GET',
         },
@@ -172,7 +169,7 @@ export default function ProductsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1/products/${id}`,
+        `${API_BASE_URL}/products/${id}`,
         {
           method: 'DELETE',
         },
