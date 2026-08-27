@@ -40,7 +40,13 @@ public class OrderService {
         LocalDateTime windowEnd = batchTimeWindow.windowEnd();
 
         Order order = orderRepository
-                .findByEmailAndOrderDateBetween(request.email(), windowStart, windowEnd)
+                .findByEmailAndOrderDateBetweenAndAddressAndZipCode(
+                        request.email(),
+                        windowStart,
+                        windowEnd,
+                        request.address(),
+                        request.zipCode()
+                )
                 .orElseGet(() -> orderRepository.save(
                         Order.builder()
                                 .email(request.email())
