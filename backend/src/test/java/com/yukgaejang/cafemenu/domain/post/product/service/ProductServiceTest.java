@@ -160,7 +160,7 @@ public class ProductServiceTest {
                 .thenReturn(emptyPage);
 
         Page<Product> result =
-                productService.getProducts(0, null);
+                productService.getProducts(0, null,null);
 
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
@@ -189,7 +189,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        productService.getProducts(0, "asc");
+        productService.getProducts(0, "asc",null);
 
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
@@ -219,7 +219,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        productService.getProducts(0, "desc");
+        productService.getProducts(0, "desc",null);
 
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
@@ -253,9 +253,9 @@ public class ProductServiceTest {
                 .thenReturn(emptyPage);
 
         // when
-        productService.getProducts(0, "asc");
-        productService.getProducts(0, "desc");
-        productService.getProducts(0, null);
+        productService.getProducts(0, "asc",null);
+        productService.getProducts(0, "desc",null);
+        productService.getProducts(0, null,null);
 
         // then
         ArgumentCaptor<Pageable> captor =
@@ -314,7 +314,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        productService.getProducts(2, null);
+        productService.getProducts(2, null,null);
 
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
@@ -338,7 +338,7 @@ public class ProductServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> productService.getProducts(-1, null)
+                () -> productService.getProducts(-1, null,null)
         );
 
         verifyNoInteractions(productRepository);
