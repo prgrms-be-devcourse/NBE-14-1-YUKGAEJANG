@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { ProductListResponse, ProductResponse } from '@/app/_shared/apis/productApi.type';
+import {
+  ProductListResponse,
+  ProductResponse,
+} from '@/app/_shared/apis/productApi.type';
 
 import {
   ChevronDownIcon,
@@ -15,71 +18,109 @@ import {
   SearchIcon,
   UserIcon,
 } from '@/app/_shared/components/icons/icons';
+
 import EmptyState from './add/_components/EmptyState';
 import { useRouter } from 'next/navigation';
 
-const PAGE_SIZE = 10;
-
 export default function ProductsPage() {
   const router = useRouter();
+
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [productsData, setProductsData] = useState<ProductListResponse | null>(null);
+  const [productsData, setProductsData] =
+    useState<ProductListResponse | null>(null);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      const response = await fetch('http://localhost:8080/api/v1/products', {
-        method: 'GET',
-      });
+  /*
+   * 상품 목록 조회
+   *
+   * Spring Page는 0부터 시작하기 때문에
+   * 프론트의 page(1부터 시작)에서 1을 빼서 전달한다.
+   */
+  const fetchProducts = async (targetPage: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/products?page=${targetPage - 1}`,
+        {
+          method: 'GET',
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('상품 목록을 불러오지 못했습니다.');
+      }
 
       const responseData: ProductListResponse = await response.json();
+
       setProductsData(responseData);
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    fetchProducts();
-  }, []);
+  /*
+   * 페이지가 변경될 때마다 상품 목록 조회
+   */
+  useEffect(() => {
+    fetchProducts(page);
+  }, [page]);
 
-  const filteredProducts = useMemo(() => {
-    const products = productsData?.products ?? [];
+  /*
+   * 백엔드에서 받은 현재 페이지 상품
+   */
+  const products = productsData?.products ?? [];
+
+  /*
+   * 백엔드에서 전달한 전체 페이지 수
+   */
+  const totalPages = Math.max(productsData?.totalPages ?? 1, 1);
+
+  /*
+   * 기존 검색 기능 유지
+   *
+   * 현재 백엔드는 검색어를 받지 않기 때문에
+   * 현재 페이지에서 받아온 상품을 프론트에서 필터링한다.
+   */
+  const filteredProducts = products.filter((product) => {
     const keyword = search.trim().toLowerCase();
 
     if (!keyword) {
-      return products;
+      return true;
     }
 
-    return products.filter((product) => {
-      return (
-        product.name.toLowerCase().includes(keyword) ||
-        String(product.id).includes(keyword)
-      );
-    });
-  }, [search, productsData]);
+    return (
+      product.name.toLowerCase().includes(keyword) ||
+      String(product.id).includes(keyword)
+    );
+  });
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredProducts?.length ?? 0 / PAGE_SIZE),
-  );
-
-  const currentProducts = filteredProducts?.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
-
+  /*
+   * 현재 페이지 전체 선택 여부
+   */
   const allCurrentPageSelected =
-    currentProducts.length > 0 &&
-    currentProducts.every((product) => selectedIds.includes(product.id));
+    filteredProducts.length > 0 &&
+    filteredProducts.every((product) =>
+      selectedIds.includes(product.id),
+    );
 
+  /*
+   * 검색어 변경
+   */
   const handleSearch = (value: string) => {
     setSearch(value);
-    setPage(1);
   };
 
+  /*
+   * 현재 페이지 전체 선택 / 해제
+   */
   const handleToggleAll = () => {
     if (allCurrentPageSelected) {
       setSelectedIds((current) =>
         current.filter(
-          (id) => !currentProducts.some((product) => product.id === id),
+          (id) =>
+            !filteredProducts.some(
+              (product) => product.id === id,
+            ),
         ),
       );
 
@@ -89,7 +130,7 @@ export default function ProductsPage() {
     setSelectedIds((current) => {
       const next = new Set(current);
 
-      currentProducts.forEach((product) => {
+      filteredProducts.forEach((product) => {
         next.add(product.id);
       });
 
@@ -97,6 +138,9 @@ export default function ProductsPage() {
     });
   };
 
+  /*
+   * 개별 상품 선택 / 해제
+   */
   const handleToggleProduct = (id: number) => {
     setSelectedIds((current) =>
       current.includes(id)
@@ -105,42 +149,92 @@ export default function ProductsPage() {
     );
   };
 
+  /*
+   * 페이지 변경
+   */
   const handlePageChange = (nextPage: number) => {
-    setPage(Math.max(1, Math.min(totalPages, nextPage)));
+    setPage(
+      Math.max(1, Math.min(totalPages, nextPage)),
+    );
   };
 
-  //관리자가 상품 삭제하는 기능
+  /*
+   * 관리자 상품 삭제
+   */
   const handleDelete = async (id: number) => {
-    const confirmed = window.confirm('상품을 삭제하시겠습니까?');
+    const confirmed = window.confirm(
+      '상품을 삭제하시겠습니까?',
+    );
 
     if (!confirmed) {
       return;
     }
 
-    const response = await fetch(
-      `http://localhost:8080/api/v1/products/${id}`,
-      {
-        method: 'DELETE',
-      },
-    );
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/products/${id}`,
+        {
+          method: 'DELETE',
+        },
+      );
 
-    if (!response.ok) {
-      alert('상품 삭제에 실패했습니다.');
-      return;
-    }
-
-    alert('상품이 삭제되었습니다.');
-
-    setProductsData((current) => {
-      if (!current) {
-        return current;
+      if (!response.ok) {
+        alert('상품 삭제에 실패했습니다.');
+        return;
       }
 
-      return {
-        ...current,
-        products: current.products.filter((product) => product.id !== id),
-      };
-    });
+      alert('상품이 삭제되었습니다.');
+
+      /*
+       * 삭제된 상품을 선택 목록에서도 제거
+       */
+      setSelectedIds((current) =>
+        current.filter((selectedId) => selectedId !== id),
+      );
+
+      /*
+       * 삭제 후 현재 페이지를 다시 조회한다.
+       *
+       * 마지막 상품을 삭제해서 현재 페이지가 없어지는 경우
+       * totalPages를 확인한 후 이전 페이지로 이동한다.
+       */
+      const responseAfterDelete = await fetch(
+        `http://localhost:8080/api/v1/products?page=${page - 1}`,
+        {
+          method: 'GET',
+        },
+      );
+
+      if (!responseAfterDelete.ok) {
+        throw new Error(
+          '상품 목록을 다시 불러오지 못했습니다.',
+        );
+      }
+
+      const updatedData: ProductListResponse =
+        await responseAfterDelete.json();
+
+      /*
+       * 현재 페이지가 삭제로 인해 없어졌다면
+       * 마지막 페이지로 이동한다.
+       */
+      if (
+        page > updatedData.totalPages &&
+        updatedData.totalPages > 0
+      ) {
+        setPage(updatedData.totalPages);
+        return;
+      }
+
+      /*
+       * 현재 페이지가 그대로 존재한다면
+       * 새로 받아온 상품 목록으로 즉시 갱신한다.
+       */
+      setProductsData(updatedData);
+    } catch (error) {
+      console.error(error);
+      alert('상품 목록을 새로고침하지 못했습니다.');
+    }
   };
 
   return (
@@ -182,7 +276,9 @@ export default function ProductsPage() {
             <div className="relative w-full sm:max-w-[360px]">
               <input
                 value={search}
-                onChange={(event) => handleSearch(event.target.value)}
+                onChange={(event) =>
+                  handleSearch(event.target.value)
+                }
                 placeholder="상품명 또는 상품 ID 검색"
                 className="
                   h-11 w-full rounded-lg
@@ -222,20 +318,26 @@ export default function ProductsPage() {
               </thead>
 
               <tbody>
-                {currentProducts.map((product) => (
+                {filteredProducts.map((product) => (
                   <ProductRow
                     key={product.id}
                     product={product}
                     selected={selectedIds.includes(product.id)}
-                    onSelect={() => handleToggleProduct(product.id)}
-                    onDelete={() => handleDelete(product.id)}
+                    onSelect={() =>
+                      handleToggleProduct(product.id)
+                    }
+                    onDelete={() =>
+                      handleDelete(product.id)
+                    }
                     onEdit={() =>
-                      router.push(`/admin/products/${product.id}/edit`)
+                      router.push(
+                        `/admin/products/${product.id}/edit`,
+                      )
                     }
                   />
                 ))}
 
-                {currentProducts.length === 0 && (
+                {filteredProducts.length === 0 && (
                   <tr>
                     <td colSpan={5}>
                       <EmptyState />
@@ -319,7 +421,10 @@ function ProductRow({
   return (
     <tr className="h-[91px] border-t border-[#f2ede8] text-[13px] text-[#4e4137]">
       <td className="pl-[18px]">
-        <Checkbox checked={selected} onChange={onSelect} />
+        <Checkbox
+          checked={selected}
+          onChange={onSelect}
+        />
       </td>
 
       <td>
@@ -342,7 +447,9 @@ function ProductRow({
         {formatPrice(product.price)}
       </td>
 
-      <td className="text-[#75675c]">{product.id}</td>
+      <td className="text-[#75675c]">
+        {product.id}
+      </td>
 
       <td>
         <div className="flex gap-2">
@@ -383,11 +490,19 @@ function ProductRow({
 /* Product Thumbnail                                                          */
 /* -------------------------------------------------------------------------- */
 
-function ProductThumbnail({ imageUrl }: { imageUrl?: string }) {
+function ProductThumbnail({
+  imageUrl,
+}: {
+  imageUrl?: string;
+}) {
   return (
     <div className="relative grid h-[58px] w-12 place-items-center">
       {imageUrl ? (
-        <img src={imageUrl} alt="" className="h-[54px] w-11 object-contain" />
+        <img
+          src={imageUrl}
+          alt=""
+          className="h-[54px] w-11 object-contain"
+        />
       ) : (
         <CoffeeBagPlaceholder />
       )}
@@ -401,7 +516,9 @@ function CoffeeBagPlaceholder() {
       <div className="absolute left-1 right-1 top-[15px] flex h-[19px] flex-col items-center justify-center rounded-sm bg-[#f8f2e9]">
         <span className="mb-px h-1 w-1.5 rounded-full bg-[#9d6744]" />
 
-        <b className="text-[3px] tracking-[0.3px] text-[#594535]">COFFEE</b>
+        <b className="text-[3px] tracking-[0.3px] text-[#594535]">
+          COFFEE
+        </b>
       </div>
     </div>
   );
@@ -420,11 +537,17 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1,
+  );
 
   return (
     <div className="flex items-center gap-1">
-      <PaginationButton disabled={page === 1} onClick={() => onPageChange(1)}>
+      <PaginationButton
+        disabled={page === 1}
+        onClick={() => onPageChange(1)}
+      >
         <DoubleChevronLeftIcon />
       </PaginationButton>
 
@@ -500,7 +623,7 @@ function PaginationButton({
       disabled={disabled}
       onClick={onClick}
       className="
-        grid h-8 w-8 place-items-center
+        grid h-8 w-8 items-center justify-center
         rounded-md text-[#8b7c70]
         hover:bg-[#f5efe9]
         disabled:cursor-default
@@ -541,7 +664,11 @@ function Checkbox({
       `}
     >
       {checked && (
-        <svg viewBox="0 0 11 11" className="h-[11px] w-[11px]" fill="none">
+        <svg
+          viewBox="0 0 11 11"
+          className="h-[11px] w-[11px]"
+          fill="none"
+        >
           <path
             d="M2 5.5L4.3 8L9 3"
             stroke="white"
