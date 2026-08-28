@@ -184,8 +184,7 @@ public class ProductServiceTest {
 
         Page<Product> emptyPage = Page.empty();
 
-        when(productRepository.findDistinctByNameContaining(
-                anyString(),
+        when(productRepository.findAll(
                 any(Pageable.class)
         )).thenReturn(emptyPage);
 
@@ -199,10 +198,7 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findDistinctByNameContaining(
-                anyString(),
-                captor.capture()
-        );
+        verify(productRepository).findAll(captor.capture());
 
         Pageable pageable = captor.getValue();
 
@@ -211,7 +207,7 @@ public class ProductServiceTest {
 
         assertSame(emptyPage, result);
         assertEquals(0, pageable.getPageNumber());
-        assertEquals(10, pageable.getPageSize());
+        assertEquals(8, pageable.getPageSize());
         assertNotNull(idOrder);
         assertEquals(
                 Sort.Direction.ASC,
@@ -228,8 +224,7 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findDistinctByNameContaining(
-                anyString(),
+        when(productRepository.findAll(
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -242,10 +237,7 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findDistinctByNameContaining(
-                anyString(),
-                captor.capture()
-        );
+        verify(productRepository).findAll(captor.capture());
 
         Pageable pageable = captor.getValue();
 
@@ -268,8 +260,7 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findDistinctByNameContaining(
-                anyString(),
+        when(productRepository.findAll(
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -282,10 +273,7 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findDistinctByNameContaining(
-                anyString(),
-                captor.capture()
-        );
+        verify(productRepository).findAll(captor.capture());
 
         Pageable pageable = captor.getValue();
 
@@ -310,8 +298,7 @@ public class ProductServiceTest {
 
         Page<Product> emptyPage = Page.empty();
 
-        when(productRepository.findDistinctByNameContaining(
-                anyString(),
+        when(productRepository.findAll(
                 any(Pageable.class)
         )).thenReturn(emptyPage);
 
@@ -336,10 +323,7 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository, times(3)).findDistinctByNameContaining(
-                anyString(),
-                captor.capture()
-        );
+        verify(productRepository, times(3)).findAll(captor.capture());
 
         List<Pageable> pageables =
                 captor.getAllValues();
@@ -400,7 +384,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 목록은 요청한 페이지 번호와 페이지 크기 10을 사용한다")
+    @DisplayName("상품 목록은 요청한 페이지 번호와 페이지 크기 8을 사용한다")
     void productListShouldUseRequestedPage() {
         ProductRepository productRepository =
                 mock(ProductRepository.class);
@@ -408,8 +392,7 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findDistinctByNameContaining(
-                anyString(),
+        when(productRepository.findAll(
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -422,15 +405,12 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findDistinctByNameContaining(
-                anyString(),
-                captor.capture()
-        );
+        verify(productRepository).findAll(captor.capture());
 
         Pageable pageable = captor.getValue();
 
         assertEquals(2, pageable.getPageNumber());
-        assertEquals(10, pageable.getPageSize());
+        assertEquals(8, pageable.getPageSize());
     }
 
     @Test
