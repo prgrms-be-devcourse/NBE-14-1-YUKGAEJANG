@@ -32,7 +32,10 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderCreateRequest request) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now =
+                request.orderDate() != null
+                        ? request.orderDate()
+                        : LocalDateTime.now();
         BatchTimeWindowUtil.BatchTimeWindow batchTimeWindow = BatchTimeWindowUtil
                 .getBatchTimeWindow(now);
 
