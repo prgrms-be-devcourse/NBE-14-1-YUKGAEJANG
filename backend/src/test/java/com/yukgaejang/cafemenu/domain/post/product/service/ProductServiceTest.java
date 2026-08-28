@@ -12,7 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -185,8 +184,8 @@ public class ProductServiceTest {
 
         Page<Product> emptyPage = Page.empty();
 
-        when(productRepository.findAll(
-                any(Specification.class),
+        when(productRepository.findDistinctByNameContaining(
+                anyString(),
                 any(Pageable.class)
         )).thenReturn(emptyPage);
 
@@ -200,8 +199,8 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findAll(
-                any(Specification.class),
+        verify(productRepository).findDistinctByNameContaining(
+                anyString(),
                 captor.capture()
         );
 
@@ -229,8 +228,8 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findAll(
-                any(Specification.class),
+        when(productRepository.findDistinctByNameContaining(
+                anyString(),
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -243,8 +242,8 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findAll(
-                any(Specification.class),
+        verify(productRepository).findDistinctByNameContaining(
+                anyString(),
                 captor.capture()
         );
 
@@ -269,8 +268,8 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findAll(
-                any(Specification.class),
+        when(productRepository.findDistinctByNameContaining(
+                anyString(),
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -283,8 +282,8 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findAll(
-                any(Specification.class),
+        verify(productRepository).findDistinctByNameContaining(
+                anyString(),
                 captor.capture()
         );
 
@@ -311,8 +310,8 @@ public class ProductServiceTest {
 
         Page<Product> emptyPage = Page.empty();
 
-        when(productRepository.findAll(
-                any(Specification.class),
+        when(productRepository.findDistinctByNameContaining(
+                anyString(),
                 any(Pageable.class)
         )).thenReturn(emptyPage);
 
@@ -337,8 +336,8 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository, times(3)).findAll(
-                any(Specification.class),
+        verify(productRepository, times(3)).findDistinctByNameContaining(
+                anyString(),
                 captor.capture()
         );
 
@@ -409,8 +408,8 @@ public class ProductServiceTest {
         ProductService productService =
                 new ProductService(productRepository);
 
-        when(productRepository.findAll(
-                any(Specification.class),
+        when(productRepository.findDistinctByNameContaining(
+                anyString(),
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -423,8 +422,8 @@ public class ProductServiceTest {
         ArgumentCaptor<Pageable> captor =
                 ArgumentCaptor.forClass(Pageable.class);
 
-        verify(productRepository).findAll(
-                any(Specification.class),
+        verify(productRepository).findDistinctByNameContaining(
+                anyString(),
                 captor.capture()
         );
 

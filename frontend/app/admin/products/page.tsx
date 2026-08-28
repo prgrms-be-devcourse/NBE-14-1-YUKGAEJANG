@@ -364,7 +364,7 @@ export default function ProductsPage() {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] border-collapse">
+            <table className="w-full min-w-[680px] border-collapse">
 
               <thead>
                 <tr className="h-[54px] bg-[#fcfaf8] text-left text-xs font-semibold text-[#75675c]">
@@ -384,10 +384,6 @@ export default function ProductsPage() {
 
                   <th className="w-[180px]">
                     가격
-                  </th>
-
-                  <th className="w-[180px]">
-                    상품 ID
                   </th>
 
                   <th className="w-[190px]">
@@ -427,7 +423,7 @@ export default function ProductsPage() {
                 {isLoading && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={4}
                       className="px-6 py-16 text-center text-sm text-[#8d7d70]"
                     >
                       상품 목록을 불러오는 중입니다.
@@ -438,7 +434,7 @@ export default function ProductsPage() {
                 {!isLoading && errorMessage && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={4}
                       className="px-6 py-16 text-center text-sm text-red-600"
                     >
                       {errorMessage}
@@ -450,7 +446,7 @@ export default function ProductsPage() {
                   !errorMessage &&
                   products.length === 0 && (
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={4}>
                         <EmptyState />
                       </td>
                     </tr>
@@ -461,7 +457,7 @@ export default function ProductsPage() {
           </div>
 
           {/* Footer */}
-          <div className="flex min-w-[800px] items-center justify-between border-t border-[#f0ebe6] px-[18px] py-3">
+          <div className="flex min-w-[680px] items-center justify-between border-t border-[#f0ebe6] px-[18px] py-3">
 
             <span className="text-xs text-[#75685d]">
               현재 페이지 {products.length}개
@@ -555,26 +551,16 @@ function ProductRow({
             imageUrl={product.imageUrl}
           />
 
-          <div>
-
-            <strong className="mb-1.5 block text-[13px] font-semibold text-[#3d3027]">
+          <div className="min-w-0">
+            <strong className="block text-[13px] font-semibold text-[#3d3027]">
               {product.name}
             </strong>
-
-            <span className="block text-[11px] text-[#a79a8f]">
-              상품 #{product.id}
-            </span>
-
           </div>
         </div>
       </td>
 
       <td className="font-medium text-[#403228]">
         {formatPrice(product.price)}
-      </td>
-
-      <td className="text-[#75675c]">
-        {product.id}
       </td>
 
       <td>
