@@ -370,14 +370,7 @@ export default function ProductsPage() {
                 <tr className="h-[54px] bg-[#fcfaf8] text-left text-xs font-semibold text-[#75675c]">
 
                   <th className="w-14 pl-[18px]">
-                    <Checkbox
-                      checked={
-                        allCurrentPageSelected
-                      }
-                      onChange={
-                        handleToggleAll
-                      }
-                    />
+                    
                   </th>
 
                   <th>상품 정보</th>
@@ -538,10 +531,6 @@ function ProductRow({
     <tr className="h-[91px] border-t border-[#f2ede8] text-[13px] text-[#4e4137]">
 
       <td className="pl-[18px]">
-        <Checkbox
-          checked={selected}
-          onChange={onSelect}
-        />
       </td>
 
       <td>
