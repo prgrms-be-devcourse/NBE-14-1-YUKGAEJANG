@@ -63,7 +63,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<Product> getProducts(int page, String direction, String productName) {
 
-        Sort sort = Sort.by(Sort.Direction.ASC, "id"); //기본 조회
+        Sort sort = Sort.by(Sort.Direction.DESC, "id"); //기본 조회
 
         if ("asc".equalsIgnoreCase(direction)) {
             sort = Sort.by(Sort.Direction.ASC, "price"); // 가격 낮은 순
