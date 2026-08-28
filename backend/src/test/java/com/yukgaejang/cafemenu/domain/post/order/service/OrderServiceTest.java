@@ -41,6 +41,7 @@ class OrderServiceTest {
     private OrderCreateRequest requestWith(Long productId, int quantity) {
         return new OrderCreateRequest(
                 "test@example.com", "12345", "서울시 강남구",
+                null,
                 List.of(new OrderCreateRequest.OrderItemRequest(productId, quantity))
         );
     }
@@ -227,6 +228,7 @@ class OrderServiceTest {
 
         OrderCreateRequest request = new OrderCreateRequest(
                 "test@example.com", "12345", "서울시 강남구",
+                null,
                 List.of(
                         new OrderCreateRequest.OrderItemRequest(1L, 1),
                         new OrderCreateRequest.OrderItemRequest(2L, 2)
@@ -267,6 +269,7 @@ class OrderServiceTest {
 
         OrderCreateRequest request = new OrderCreateRequest(
                 "test@example.com", "12345", "서울시 강남구",
+                null,
                 List.of(
                         new OrderCreateRequest.OrderItemRequest(1L, 1),      // 존재하는 상품 — 먼저 처리됨
                         new OrderCreateRequest.OrderItemRequest(999L, 1)     // 존재하지 않는 상품 — 여기서 예외
@@ -294,6 +297,7 @@ class OrderServiceTest {
                 "test@example.com",
                 "12345",
                 "서울시 서초구",
+                null,
                 List.of(
                         new OrderCreateRequest.OrderItemRequest(
                                 1L,
@@ -363,6 +367,7 @@ class OrderServiceTest {
                 "test@example.com",
                 "54321",
                 "서울시 강남구",
+                null,
                 List.of(
                         new OrderCreateRequest.OrderItemRequest(
                                 1L,
