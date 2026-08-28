@@ -220,7 +220,7 @@ export default function AdminOrdersPage() {
                 }
                 placeholder={
                   searchType === 'product'
-                      ? '정확한 상품명을 입력해주세요.'
+                      ? '상품명 일부를 입력해주세요.'
                       : undefined
                 }
                 className="h-11 rounded-[8px] border border-[#ddd3c9] bg-white px-4"
