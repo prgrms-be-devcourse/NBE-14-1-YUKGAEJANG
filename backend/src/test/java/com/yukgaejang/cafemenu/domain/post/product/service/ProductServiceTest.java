@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -384,7 +385,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 목록은 요청한 페이지 번호와 페이지 크기 8을 사용한다")
+    @DisplayName("상품 목록은 요청한 페이지 번호와 페이지 크기 10을 사용한다")
     void productListShouldUseRequestedPage() {
         ProductRepository productRepository =
                 mock(ProductRepository.class);
