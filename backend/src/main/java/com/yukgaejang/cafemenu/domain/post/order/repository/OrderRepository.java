@@ -25,7 +25,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Boolean existsByEmail(String email);
 
-    Page<Order> findDistinctByOrderItemsProductName(
+    Page<Order> findDistinctByOrderItemsProductNameContaining(
             String productName,
             Pageable pageable
     );
