@@ -71,7 +71,7 @@ public class ProductService {
             sort = Sort.by(Sort.Direction.DESC, "price"); // 가격 높은 순
         }
 
-        Pageable pageable = PageRequest.of(page, 10, sort);
+        Pageable pageable = PageRequest.of(page, 8, sort);
         Specification<Product> spec = search(productName);
 
         return productRepository.findAll(spec, pageable);
