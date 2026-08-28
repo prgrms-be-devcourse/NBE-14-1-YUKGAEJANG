@@ -71,6 +71,11 @@ public class ProductService {
         }
 
         Pageable pageable = PageRequest.of(page, 8, sort);
+
+        if (productName == null || productName.trim().isEmpty()) {
+            return productRepository.findAll(pageable);
+        }
+
         return productRepository.findDistinctByNameContaining(productName, pageable);
     }
 
