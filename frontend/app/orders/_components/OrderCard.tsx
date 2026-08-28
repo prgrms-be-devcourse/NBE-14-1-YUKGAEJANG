@@ -1,6 +1,7 @@
 import CoffeeImageRenderer from '@/app/(home)/_components/CoffeeImageRenderer';
 import { OrderResponse } from '@/app/_shared/apis/orderApi.type';
 import formatPrice from '@/app/_shared/utils/numberUtils/formatPrice';
+import formatOrderDateTime from '@/app/_shared/utils/dateUtils/formatOrderDateTime';
 import { useMemo, useState } from 'react';
 
 export default function OrderCard({
@@ -27,14 +28,6 @@ export default function OrderCard({
         0,
     );  //가격 합산 되서 나오게
   }, [order]);
-
-  const date = new Date(order.orderDate);
-
-  const formattedDate = date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
 
   const handleEdit = () => {
     setAddress(order.address);
@@ -85,13 +78,12 @@ export default function OrderCard({
               </strong>
             </div>
 
-            <div className="mt-2 text-[15px] text-[#665a50]">
-              {formattedDate}
-
-              <span className="ml-3">
-                12:34
-              </span>
-            </div>
+            <time
+              dateTime={order.orderDate}
+              className="mt-2 block whitespace-nowrap text-[15px] text-[#665a50]"
+            >
+              {formatOrderDateTime(order.orderDate)}
+            </time>
           </div>
 
           {/* 상품 */}

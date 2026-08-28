@@ -129,8 +129,8 @@ public class OrderService {
         Pageable pageable = PageRequest.of(page, 10);
 
         return orderRepository
-                .findDistinctByOrderItemsProductName(
-                        productName,
+                .findDistinctByOrderItemsProductNameContaining(
+                        productName.trim(),
                         pageable
                 );
     }

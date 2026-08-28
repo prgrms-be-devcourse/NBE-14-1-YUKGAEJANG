@@ -1,6 +1,7 @@
 import CoffeeImageRenderer from '@/app/(home)/_components/CoffeeImageRenderer';
 import { OrderResponse } from '@/app/_shared/apis/orderApi.type';
 import formatPrice from '@/app/_shared/utils/numberUtils/formatPrice';
+import formatOrderDateTime from '@/app/_shared/utils/dateUtils/formatOrderDateTime';
 import { useMemo } from 'react';
 
 export default function OrderCard({
@@ -28,13 +29,12 @@ export default function OrderCard({
             <strong className="font-semibold text-[#3b3027]">{order.id}</strong>
           </div>
 
-          <div className="mt-2 text-[15px] text-[#665a50]">
-            {order.orderDate}
-            <span className="ml-3">
-              {/* {order.time} */}
-              12:34
-            </span>
-          </div>
+          <time
+            dateTime={order.orderDate}
+            className="mt-2 block whitespace-nowrap text-[15px] text-[#665a50]"
+          >
+            {formatOrderDateTime(order.orderDate)}
+          </time>
         </div>
 
         {/* Products */}
