@@ -71,10 +71,13 @@ public class ProductService {
             sort = Sort.by(Sort.Direction.DESC, "price"); // 가격 높은 순
         }
 
-        Pageable pageable = PageRequest.of(page, 10, sort);
-        Specification<Product> spec = search(productName);
+        Pageable pageable = PageRequest.of(page, 8, sort);
 
-        return productRepository.findAll(spec, pageable);
+        if (productName == null || productName.trim().isEmpty()) {
+            return productRepository.findAll(pageable);
+        }
+
+        return productRepository.findDistinctByNameContaining(productName, pageable);
     }
 
     public void deleteProduct(Long productId) {

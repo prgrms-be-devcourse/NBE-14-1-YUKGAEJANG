@@ -9,7 +9,7 @@ type RevenueChartProps = {
 };
 
 const WIDTH = 720;
-const HEIGHT = 260;
+const HEIGHT = 300;
 const PADDING = { top: 20, right: 18, bottom: 42, left: 76 };
 
 const formatCompactPrice = (value: number) => {
@@ -21,7 +21,7 @@ const formatCompactPrice = (value: number) => {
 export default function RevenueChart({ data, emptyMessage }: RevenueChartProps) {
   if (data.length === 0) {
     return (
-      <div className="grid h-[260px] place-items-center rounded-xl bg-[#fcfaf8] text-sm text-[#9a8c80]">
+      <div className="grid h-[300px] place-items-center px-6 text-center text-sm text-[var(--text-tertiary)]">
         {emptyMessage}
       </div>
     );
@@ -35,10 +35,10 @@ export default function RevenueChart({ data, emptyMessage }: RevenueChartProps) 
   const gridValues = [0, 0.25, 0.5, 0.75, 1];
 
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full overflow-hidden">
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-[260px] min-w-[600px] w-full"
+        className="h-[300px] w-full"
         role="img"
         aria-label="매출 막대그래프"
       >
@@ -51,14 +51,14 @@ export default function RevenueChart({ data, emptyMessage }: RevenueChartProps) 
                 x2={WIDTH - PADDING.right}
                 y1={y}
                 y2={y}
-                stroke="#eee8e1"
+                stroke="#E8E3DD"
                 strokeDasharray="4 5"
               />
               <text
                 x={PADDING.left - 12}
                 y={y + 4}
                 textAnchor="end"
-                className="fill-[#9b8f84] text-[11px]"
+                className="fill-[#8D867E] text-[11px]"
               >
                 {formatCompactPrice(maxRevenue * ratio)}
               </text>
@@ -80,13 +80,13 @@ export default function RevenueChart({ data, emptyMessage }: RevenueChartProps) 
                 width={barWidth}
                 height={Math.max(height, 2)}
                 rx="6"
-                fill="#a97945"
+                fill="#A66F3F"
               />
               <text
                 x={x + barWidth / 2}
                 y={HEIGHT - 16}
                 textAnchor="middle"
-                className="fill-[#786b60] text-[11px]"
+                className="fill-[#8D867E] text-[11px]"
               >
                 {label}
               </text>

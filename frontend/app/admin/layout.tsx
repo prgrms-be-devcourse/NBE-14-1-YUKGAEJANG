@@ -3,7 +3,7 @@ import { AdminHeader } from './_components/AdminHeader';
 import AdminSidebar from './_components/AdminSidebar';
 
 export const metadata: Metadata = {
-  title: "관리자 | Grids & Circle",
+  title: "관리자 | Grids&Circle",
 };
 
 export default function AdminLayout({

@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg-primary: #f7f5f2;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1eeea;
+  --text-primary: #1d1b19;
+  --text-secondary: #6f6a64;
+  --text-tertiary: #9c958d;
+  --border-subtle: #e8e3dd;
+  --border-strong: #d8d1c9;
+  --accent-primary: #a66f3f;
+  --accent-hover: #8c5930;
+  --accent-soft: #f2e7dc;
+  --positive: #2e7d5b;
+  --positive-bg: #eaf4ef;
+  --negative: #c65050;
+  --negative-bg: #f9ecec;
 }
 
 @theme inline {
