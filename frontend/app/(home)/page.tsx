@@ -344,16 +344,16 @@ export default function Page() {
               )}
 
               {/* 상품 목록 */}
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {productData?.products.map(
-                  (product) => (
+              <div className="min-h-[850px]">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {productData?.products.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
                       onAdd={addToCart}
                     />
-                  ),
-                )}
+                  ))}
+                </div>
               </div>
 
               {/* 상품이 없는 경우 */}
