@@ -79,6 +79,7 @@ class OrderServiceIntegrationTest {
 
         OrderCreateRequest request = new OrderCreateRequest(
                 "test@example.com", "12345", "서울시 강남구",
+                null,
                 List.of(
                         new OrderCreateRequest.OrderItemRequest(savedProduct.getId(), 1),
                         new OrderCreateRequest.OrderItemRequest(9999L, 1)
@@ -102,6 +103,7 @@ class OrderServiceIntegrationTest {
 
         OrderCreateRequest request = new OrderCreateRequest(
                 "test@example.com", "12345", "서울시 강남구",
+                null,
                 List.of(new OrderCreateRequest.OrderItemRequest(savedProduct.getId(), 2))
         );
 

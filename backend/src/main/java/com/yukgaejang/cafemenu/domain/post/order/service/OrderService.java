@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<Order> getList(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "orderDate"));
         return this.orderRepository.findAll(pageable);
     }
 
@@ -114,7 +115,7 @@ public class OrderService {
             throw new ApiException(ErrorCode.EMAIL_NOT_FOUND, "존재하지 않는 이메일입니다.");
         }
 
-        Pageable pageable = PageRequest.of(page, 5);
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "orderDate"));
         return this.orderRepository.findAllByEmail(email, pageable);
     }
 
